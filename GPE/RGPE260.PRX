@@ -1,0 +1,499 @@
+#INCLUDE "FIVEWIN.CH"
+#INCLUDE "GPER260.CH"
+#INCLUDE "report.ch"    
+#include "rwmake.ch"        
+#include "TopConn.ch"
+#include "Ap5mail.ch" 
+
+//========>>>>>>>>>>>>>>> Daqui em diante trata-se de release 3
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o    ³ RGPE260  ³ Autor ³ R.H. - Marcos Stiefano³ Data ³ 04.01.96 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Rela‡„o de Aniversariante No Mes                           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ RGPE260(void)                                              ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                   ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³         ATUALIZACOES SOFRIDAS DESDE A CONSTRU€AO INICIAL.             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Programador ³ Data   ³ BOPS ³  Motivo da Alteracao                     ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Fernando J. ³28/03/96³XXXXXX³ Inclusao de Rotina que Consiste parame-  ³±±
+±±³            ³        ³      ³ trizacao do Intervalo de Impressao.      ³±±
+±±³Mauro       ³23/12/96³08605a³ Acerto na Indregua erro no Ads           ³±±
+±±³Aldo        ³24/03/97³xxxxxx³ Inclusao de cancelamento de impressao.   ³±±
+±±³Mauro       ³18/04/97³XXXXXX³ Ordem Data Nasc. para todas versoes      ³±±
+±±³Aldo        ³18/09/97³xxxxxx³ Tirar a expressao "funcionario" do Cabec.³±±
+±±³Aldo        ³03/03/98³xxxxxx³ Apagar corretamente o indice temporario. ³±±
+±±³Cristina    ³21/05/98³xxxxxx³ Conversao para outros idiomas.           ³±±
+±±³Kleber      ³03/02/99³XXXXXX³ Acerto Bug do Milˆnio.                   ³±±
+±±³Aldo        ³30/03/99³------³ Passagem de nTamanho para SetPrint().    ³±±
+±±³Cristina    ³25/05/99³------³ Checagem De/At‚ na Dt.Nascimento.        ³±±
+±±³Marinaldo   ³27/07/00³XXXXXX³ Retirada Dos e Validacao Filial/Acessos  ³±±
+±±³Mauro       ³07/12/01³011125³ Para o Relatorio o Set Century sera on	  ³±±
+±±³            ³        ³      ³ na saida retorna o tamanho  versoes      ³±±
+±±³Natie       ³18/05/02³------³ Acerto tamanho campo Centro Custo(tam 20)³
+±±³Jane        ³20/06/07³------³ Acrescimo da impressão da Descrição do CCusto³
+±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
+User Function RGPE260()
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Locais(Basicas)                             ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Local cDesc1  := STR0001		//"Rela‡„o de Aniversariante no Mes"
+Local cDesc2  := STR0002		//"Ser  impresso de acordo com os parametros solicitados pelo"
+Local cDesc3  := STR0003		//"usuario."
+Local cString := "SRA"  					// alias do arquivo principal (Base)
+Local aOrd    := {STR0004,STR0005,STR0006,STR0007,STR0008}  //"Matricula"###"Centro de Custo"###"Nome"###"Chapa"###"Data Nascimento"
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Private(Basicas)                            ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private aReturn  := {STR0009,1,STR0010,2,2,1,"",1 }	//"Zebrado"###"Administra‡„o"
+Private NomeProg := "GPER260"
+Private aLinha   := {}
+Private nLastKey := 0
+Private cPerg    := "GPR260"
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Private(Programa)                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private aPosicao1 := {} // Array das posicoes
+Private aTotCc1   := {}
+Private aTotFil1  := {}
+Private aTotEmp1  := {}
+Private aInfo     := {}
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis Utilizadas na funcao IMPR                          ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private Titulo
+Private AT_PRG   := "GPER260"
+Private wCabec0  := 2
+Private wCabec1  := ""
+Private wCabec2  := ""
+Private Contfl   := 1
+Private Li       := 0
+Private nTamanho := "M"
+
+
+//--MUDAR ANO PARA 4 DIGITOS
+SET CENTURY ON
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Verifica as perguntas selecionadas                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+pergunte("GPR260",.F.)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis utilizadas para parametros                         ³
+//³ mv_par01        //  Filial De                                ³
+//³ mv_par02        //  Filial Ate                               ³
+//³ mv_par03        //  Centro de Custo De                       ³
+//³ mv_par04        //  Centro de Custo Ate                      ³
+//³ mv_par05        //  Matricula De                             ³
+//³ mv_par06        //  Matricula Ate                            ³
+//³ mv_par07        //  Nome De                                  ³
+//³ mv_par08        //  Nome Ate                                 ³
+//³ mv_par09        //  Chapa De                                 ³
+//³ mv_par10        //  Chapa Ate                                ³
+//³ mv_par11        //  Data Nascimento De                       ³
+//³ mv_par12        //  Data Nascimento Ate                      ³
+//³ mv_par13        //  Mes De                                   ³
+//³ mv_par14        //  Mes Ate                                  ³
+//³ mv_par15        //  Situacoes                                ³
+//³ mv_par16        //  Categorias                               ³
+//³ mv_par17        //  Imprime Salario                          ³
+//³ mv_par18        //  Imprime Ano de Nascimento                ³
+//³ mv_par19        //  Imprime Estado Civil                     ³
+//³ mv_par20        //  Salta Pagina Quebra Filial               ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cTit    := STR0011		//" RELA€ŽO DE ANIVERSARIANTES NO MES "
+Titulo  := STR0011		//" RELA€ŽO DE ANIVERSARIANTES NO MES "
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Envia controle para a funcao SETPRINT                        ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+wnrel:="GPER260"            //Nome Default do relatorio em Disco
+wnrel:=SetPrint(cString,wnrel,cPerg,cTit,cDesc1,cDesc2,cDesc3,.F.,aOrd,,nTamanho)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Carregando variaveis mv_par?? para Variaveis do Sistema.     ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+nOrdem     := aReturn[8]
+cFilDe     := mv_par01
+cFilAte    := mv_par02
+cCcDe      := mv_par03
+cCcAte     := mv_par04
+cMatDe     := mv_par05
+cMatAte    := mv_par06
+cNomeDe    := mv_par07
+cNomeAte   := mv_par08
+cChapaDe   := mv_par09
+cChapaAte  := mv_par10
+dDatNaDe   := mv_par11
+dDatNaAte  := mv_par12
+cMesDe     := mv_par13
+cMesAte    := mv_par14
+cSituacao  := mv_par15
+cCategoria := mv_par16
+lImpSal    := If( mv_par17 == 1 , .T. , .F. )
+lAnoNas    := If( mv_par18 == 1 , .T. , .F. )
+lImpEst    := If( mv_par19 == 1 , .T. , .F. )
+lSalta     := If( mv_par20 == 1 , .T. , .F. )
+
+If nOrdem # 4
+    Wcabec1 := STR0012	//"FILIAL   C. CUSTO              MATR.   NOME                                  DATA DE      ESTADO                  "
+    Wcabec2 := STR0013	//"                                                                             NASCIMENTO    CIVIL                   "
+Else
+    Wcabec1 := STR0014	//"FILIAL   C. CUSTO              CHAPA  MATR.    NOME                                DATA DE      ESTADO             "
+    Wcabec2 := STR0015	//"                                                                                   NASCIMENTO    CIVIL              "    
+Endif
+
+
+Wcabec1 += If( lImpSal , STR0016 , "" ) 	//"SALARIO"
+
+If nLastKey == 27
+	If nTdata > 8
+		SET CENTURY ON
+	Else
+		SET CENTURY OFF
+	Endif
+	Return
+Endif
+SetDefault(aReturn,cString)
+If nLastKey = 27
+	If nTdata > 8
+		SET CENTURY ON
+	Else
+		SET CENTURY OFF
+	Endif
+	Return
+Endif
+
+RptStatus({|lEnd| GR260Imp(@lEnd,wnRel,cString)},cTit)
+
+If nTdata > 8
+	SET CENTURY ON
+Else
+	SET CENTURY OFF
+Endif
+
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o    ³ GPER260  ³ Autor ³ R.H. - Marcos Stiefano³ Data ³ 04.01.96 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Rela‡„o de Aniversariante No Mes                           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ GPER260(lEnd,WnRel,cString)                                ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ lEnd        - A‡Æo do Codelock                             ³±±
+±±³          ³ wnRel       - T¡tulo do relat¢rio                          ³±±
+±±³Parametros³ cString     - Mensagem			                          ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                   ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
+Static Function GR260Imp(lEnd,WnRel,cString)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Locais (Programa)                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Local CbTxt //Ambiente
+Local CCont
+Local aCodFol := {}
+Local nCont   := 0
+Local aCampos,cArqTrb
+
+/*
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³ Variaveis de Acesso do Usuario                               ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ*/
+Local cAcessaSRA	:= &( " { || " + ChkRH( "GPER260" , "SRA" , "2" ) + " } " )
+
+dbSelectArea( "SRA" )
+If nOrdem == 1 
+	dbSetOrder( 1 )
+ElseIf nOrdem == 2
+	dbSetOrder( 2 )
+ElseIf nOrdem == 3
+	dbSetOrder(3)
+ElseIf nOrdem == 4
+	dbSetOrder(1)
+ElseIf nOrdem == 5
+	dbSetOrder(1)
+Endif
+
+dbGoTop()
+
+If nOrdem == 1
+	dbSeek(cFilDe + cMatDe,.T.)
+	cInicio := "SRA->RA_FILIAL + SRA->RA_MAT"
+	cFim    := cFilAte + cMatAte
+ElseIf nOrdem == 2
+	dbSeek(cFilDe + cCcDe + cMatDe,.T.)
+	cInicio := "SRA->RA_FILIAL + SRA->RA_CC + SRA->RA_MAT"
+	cFim    := cFilAte + cCcAte + cMatAte
+ElseIf nOrdem == 3
+	dbSeek(cFilDe + cNomeDe + cMatDe,.T.)
+	cInicio := "SRA->RA_FILIAL + SRA->RA_NOME + SRA->RA_MAT"
+	cFim    := cFilAte + cNomeAte + cMatAte
+ElseIf nOrdem == 4
+	dbSeek(cFilDe + cMatDe,.T.)
+	cInicio := "SRA->RA_FILIAL + SRA->RA_MAT"
+	cFim    := cFilAte + cMatAte
+ElseIf nOrdem == 5
+	dbSeek(cFilDe + cMatDe,.T.)
+	cInicio := "SRA->RA_FILIAL + SRA->RA_MAT"
+	cFim    := cFilAte + cMatAte
+	aCampos := {{"RECNO","N",10,0},{"CHAVE","C",6,0}}
+	cArqTrb := CriaTrab(aCampos,.t.)
+	Use &cArqTrb Alias TRB Exclusive NEW
+	Index ON CHAVE to &cArqTrb
+	dbSelectArea("SRA")	
+	dbSeek(cFilDe+cMatDe,.T.)
+	While !Eof() .and. SRA->RA_FILIAL+SRA->RA_MAT <= cFilAte+cMatAte
+		
+		IF Gpe260Ok()
+			dbSelectArea("TRB")
+			RecLock("TRB",.t.)
+			Replace RECNO With SRA->(Recno())
+			Replace CHAVE With SRA->RA_FILIAL+Right(Dtos(SRA->RA_NASC),4)
+		Endif
+		dbSelectArea("SRA")
+		dbSkip()
+	End
+	TRB->(dbGotop())
+Endif
+
+If nOrdem == 4
+       cIndCond:= "RA_FILIAL + RA_CHAPA"
+       cFor :='RA_FILIAL >= "'+cFIlDe+'" .and. RA_CHAPA >= "'+cChapaDe+'" .and. RA_FILIAL <= "'+cFIlAte+'" .and. '
+       cFor +='RA_CHAPA <= "'+cChapaAte+'"'
+       cArqNtx  := CriaTrab(Nil,.F.)
+       IndRegua("SRA",cArqNtx,cIndCond,,cFor,STR0017)		//"Selecionando Registros..."
+Endif
+
+cFilialAnt := "  "
+cCcAnt     := Space(20)
+
+dbSelectArea( "SRA" )
+cFilAnterior := SRA->RA_FILIAL
+IF nOrdem != 5
+	SetRegua(SRA->(RecCount()))
+Else
+	SetRegua(TRB->(RecCount()))
+	IF !TRB->(Eof())
+		SRA->(dbGoto(TRB->RECNO))
+	Else
+		SRA->(dbSeek("@@@@@@@@"))
+	Endif
+Endif
+
+
+While	!EOF() .And. &cInicio <= cFim
+	
+    //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+    //³ Movimenta Regua Processamento                                ³
+    //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	 IncRegua()
+
+	If lEnd
+		@Prow()+1,0 PSAY cCancel
+		Exit
+	Endif	 
+    
+    If SRA->RA_FILIAL # cFilialAnt
+	    If !fInfo(@aInfo,SRA->RA_FILIAL)
+		    Exit
+	    Endif
+	    dbSelectArea( "SRA" )
+	    cFilialAnt := SRA->RA_FILIAL
+    Endif
+       
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Consiste Parametrizacao do Intervalo de Impressao            ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	If !GPE260Ok() .and. nOrdem != 5
+		fTestaTotal()
+		SRA->(dbSkip(1))
+		Loop
+	Endif
+
+	/*
+	ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	³Consiste Filiais e Acessos                                             ³
+	ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ*/
+	IF !( SRA->RA_FILIAL $ fValidFil() ) .or. !Eval( cAcessaSRA )
+		fTestaTotal()
+      	SRA->(dbSkip())
+       	Loop
+	EndIF
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Impressao do Funcionario                                     ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	fImpFun()
+	fTestaTotal()  // Quebras e Skips
+	IF nOrdem == 5
+		TRB->(dbSkip())
+		IF !TRB->(Eof())
+			SRA->(dbGoto(TRB->RECNO))
+		Else
+			SRA->(dbSeek("@@@@@@@@"))
+		Endif
+	Else
+		SRA->(dbSkip())
+	Endif
+	dbSelectArea("SRA")
+EndDo
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Termino do Relatorio                                         ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Impr("","F")
+
+If nOrdem == 5
+	dbSelectArea("TRB")
+	dbCloseArea()
+	FERASE(cArqTRB+GetDBExtension())
+	#IFDEF CDX
+		FERASE(cArqTRB+".CDX")
+	#ELSE
+		FERASE(cArqTRB+".NTX")
+	#ENDIF	
+Endif
+
+dbSelectArea( "SRA" )
+Set Filter to
+If nOrdem == 4 
+	RetIndex( "SRA" )
+Endif
+dbSetOrder(1)
+If nOrdem == 4 
+	fErase( cArqNtx + OrdBagExt() )
+Endif
+
+Set Device To Screen
+
+If aReturn[5] = 1
+	Set Printer To
+	Commit
+	ourspool(wnrel)
+Endif
+
+MS_FLUSH()
+
+*--------------------------*
+Static Function fTestaTotal
+*--------------------------*
+dbSelectArea( "SRA" )
+cFilialAnt := SRA->RA_FILIAL              // Iguala Variaveis
+cCcAnt     := SRA->RA_CC
+
+Return Nil
+
+*------------------------*
+Static Function fImpFun()
+*------------------------*
+
+Local cCivil    := ""
+Local cDesCivil := ""
+Local cSalario  := Space(14) 
+
+cQuery:="  SELECT RA_MAT,RA_NOME,RA_CC,CTT_DESC01  "
+cQuery+=" FROM "+RetSqlName("SRA")+" SRA "
+cQuery+=" INNER JOIN "+RetSqlName("CTT")+" CTT ON (CTT.D_E_L_E_T_<>'*' AND CTT_CUSTO=RA_CC) "
+cQuery+=" WHERE  SRA.RA_DEMISSA=''AND SRA.D_E_L_E_T_<>'*' AND RA_MAT='"+SRA->RA_MAT+"'"
+
+
+
+TCQUERY cQuery Alias "QTMP" New
+dbSelectArea("QTMP") 
+dbGotop()
+If !EOF()
+
+
+cDet 	    := " "+SRA->RA_FILIAL+"      "+substr(LEFT(SRA->RA_CC,7)+QTMP->CTT_DESC01,1,40)
+cCivil    := SRA->RA_ESTCIVI
+cDesCivil := IF(cCivil="S",STR0018,IF(cCivil="C",STR0019,iF(cCivil="V",STR0020,IF(cCivil="D",STR0021,IF(cCivil="Q",STR0022,STR0023)))))	//"SOLTEIRO"###"CASADO"###"VIUVO"###"DIVORCIADO"###"DESQUITADO"###"MARITAL"
+If lImpEst
+	cDesCivil := SubStr(cDesCivil+Space(10),1,10)
+Else
+	cDesCivil := Replicate("-",10)
+Endif
+
+If lImpSal
+	cSalario := Transform(SRA->RA_SALARIO,"@E 999,999,999.99")
+Else
+	cSalario := Space(14)
+Endif
+
+If nOrdem # 4
+	cDet += Space(02) + SRA->RA_MAT + Space(02) + substr(SRA->RA_NOME,1,30) + Space(07)
+	cDet += IF(lAnoNas , PadR(DtoC(SRA->RA_NASC),14) , PadR(SubStr(DtoC(SRA->RA_NASC),1,5),14))
+	cDet += cDesCivil + Space(7) + cSalario 
+Else
+	cDet += Space(02) + SRA->RA_CHAPA + Space(02) + SRA->RA_MAT + Space(03)
+	cDet += substr(SRA->RA_NOME,1,30) + Space(05) + IF(lAnoNas , PadR(DtoC(SRA->RA_NASC),14) , PadR(SubStr(DtoC(SRA->RA_NASC),1,5),14))
+	cDet += cDesCivil + Space(02) + cSalario
+Endif 
+ENDIF
+dbSelectArea("QTMP")
+dbCloseArea()
+
+If cFilAnterior # SRA->RA_FILIAL .And. lSalta
+	Impr("","P")
+	cFilAnterior := SRA->RA_FILIAL
+Endif
+
+Impr(cDet,"C")
+
+
+Return Nil
+
+**************************
+Static Function GPE260Ok()
+**************************
+If (SRA->RA_CHAPA < cChapaDe) .Or. (SRA->RA_CHAPA > cChapaAte) .Or. ;
+	(SRA->RA_NOME < cNomeDe)   .Or. (SRA->RA_NOME > cNomeAte)   .Or. ;
+	(SRA->RA_MAT < cMatDe)     .Or. (SRA->RA_MAT > cMatAte)     .Or. ;
+	(SRA->RA_CC < cCcDe)       .Or. (SRA->RA_CC > cCcAte)			.Or. ;
+	(SRA->RA_NASC < dDatNaDe)	.Or. (SRA->RA_NASC > dDatNaAte) 
+	Return .f.
+EndIf
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Verifica Mes de Nascimento                                   ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If Month(SRA->RA_NASC) < VAL(cMesDe) .Or. Month(SRA->RA_NASC) > VAL(cMesAte)
+	Return .f.
+Endif    
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Verifica Situacao e Categoria do Funcionario                 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If !( SRA->RA_SITFOLH $ cSituacao ) .OR. !( SRA->RA_CATFUNC $ cCategoria )
+	Return .f.
+Endif
+
+Return .t.
+
+
+
+
+

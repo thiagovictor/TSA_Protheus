@@ -1,0 +1,667 @@
+#INCLUDE "FIVEWIN.CH"
+#INCLUDE "GPER340.CH"
+
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o    ³ GPER340  ³ Autor ³ R.H. - Marcos Stiefano³ Data ³ 15.04.96 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Relacao de Cargos e Salarios                               ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ GPER340(void)                                              ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³                                                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                   ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³                     ATUALIZACOES SOFRIDAS DESDE A CONSTRU€AO INICIAL. ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Programador ³ Data   ³ BOPS ³  Motivo da Alteracao                     ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Mauro      ³12/01/01³------³ Nao estava Filtrando categoria na Impress³±±
+±±³ Silvia     ³04/03/02³------³ Ajustes na Picture para Localizacoes    .³±±
+±±³ Natie      ³05/09/02³------³ Acerto devido mudanca C.custo c/tam 20   ³±±
+±±³ Emerson    ³16/10/02³------³ Somente quebrar C.C. se nao quebrou Fil. ³±±
+±±³ Mauro      ³13/11/02³060517³ Saltar Pagina a cada Quebra de Filial    ³±±
+±±³ Silvia     ³11/09/03³065152³ Inclusao de Query                        ³±±
+±±³ Emerson    ³23/03/04³------³ Inclusao de 2 casas decimais na criacao  ³±±
+±±³            ³        ³      ³ dos campos SALMES e SALHORA. 		      ³±±
+±±³ Mauro      ³01/06/04³071194³ Nao estava aceitando o filtro da setprint³±±
+±±³            ³        ³      ³ quando executava atraves da query.       ³±±
+±±³ Pedro Eloy ³30/08/04³073001³ Fiz o  tratamento para obedecer o filtro ³±±
+±±³            ³        ³      ³ da SetPrint e continuar tratar paramtros.³±±
+±±³ Natie      ³21/02/05³077851³ Tratamento do filtro da Setprint(TOPCONN)³±±
+±±³ Natie      ³06/07/05³080497³ Ajuste nos mv_par das perg.15,16 e 17    ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
+User Function RGPE340()
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Locais (Basicas)                            ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Local cString := "SRA"        // alias do arquivo principal (Base)
+Local aOrd    := {STR0001,STR0002,OemtoAnsi(STR0003),STR0029,STR0030,OemtoAnsi(STR0031)}    //"C.Custo + Matricula "###"C.Custo + Nome"###"C.Custo + Fun‡„o"###"Nome"###"Matricula"###"Fun‡„o"
+Local cDesc1  := STR0004		//"Rela‡„o de Cargos e Salario."
+Local cDesc2  := STR0005		//"Ser  impresso de acordo com os parametros solicitados pelo"
+Local cDesc3  := STR0006		//"usuario."
+Local aRegs	  := {}
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Private(Basicas)                            ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private aReturn  := {STR0007,1,STR0008,2,2,1,"",1 }	//"Zebrado"###"Administra‡„o"
+Private NomeProg := "GPER340"
+Private aLinha   := { }
+Private nLastKey := 0
+Private cPerg    := "GPR340"
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis Utilizadas na funcao IMPR                          ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private Titulo   := STR0009		//"RELA€O DE CARGOS E SALARIOS"
+Private AT_PRG   := "GPER340"
+Private Wcabec0  := 2
+Private Wcabec1  := STR0010		//"FI  MATRIC NOME                           ADMISSAO   FUNCAO                  MAO DE       SALARIO   PERC.   PERC.   PERC."
+Private Wcabec2  := STR0011		//"                                                                                      OBRA         NOMINAL  C.CUSTO  FILIAL  EMPRESA"
+Private CONTFL   := 1
+Private LI		  := 0
+Private nTamanho := "M"
+Private cPict1	:=	If (MsDecimais(1)==2,"@E 99,999,999,999.99",TM(999999999999,18,MsDecimais(1)))  // "@E 999,999,999,999.99
+Private cPict2	:=	If (MsDecimais(1)==2,"@E 99,999,999.99",TM(999999999,14,MsDecimais(1)))  // "@E 999,999,999.99
+
+//FI C.CUSTO	MATRIC NOME             				  ADMISSAO FUNCAO 						 MAO DE		  SALARIO	PERC.   PERC.	 PERC."
+// 																												 OBRA 		  NOMINAL  C.CUSTO  FILIAL  EMPRESA"
+//01 123456789 123456 123456789012345678901234567890 01/01/01 1234 12345678901234567890  IND   99.999.999,99	999,99  999,99   999,99
+/*
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³           Grupo  Ordem Pergunta Portugues     Pergunta Espanhol             Pergunta Ingles         Variavel 	Tipo  Tamanho Decimal Presel  GSC   Valid                              Var01     	 Def01      DefSPA1      DefEng1      Cnt01          					  Var02  Def02    	    DefSpa2          DefEng2	Cnt02  Var03 		Def03      DefSpa3    DefEng3  		Cnt03  Var04  Def04     DefSpa4    DefEng4  Cnt04 		 Var05  Def05       DefSpa5	 DefEng5   Cnt05  	XF3  GrgSxg   cPyme   aHelpPor  aHelpEng	 aHelpSpa    cHelp  ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ*/
+Aadd(aRegs,{cPerg,"15","Sobre Salario      ?","¨Sobre Sueldo      ?"         ,"Over Salary        ?",    "mv_chf","C" ,01    ,0		,1	 ,"C"   ,"naovazio"							,"mv_par15"	,"Composto"  ,"Compuesto" ,"Compound",""		                        ,""		,"Base"			,"Base"			 ,"Base"	  ,""	,"" 		,""			,""			,""			,"" 	,"" 	,""			,""		,""		  ,""		,""		,""			,""		,""			,""		,""		,""		,""		,{}	        ,{}			,{}		,""})
+Aadd(aRegs,{cPerg,"16","Imprimir           ?","¨Imprimir          ?"         ,"Print              ?",    "mv_chg","N" ,01    ,0		,0	 ,"C"   ,"naovazio"						    ,"mv_par16"	,"Analitico" ,"Analitico" ,"Detailed",""		                        ,""		,"Sintetico"    ,"Sintetico"	 ,"Summarized",""	,"" 		,""			,""			,""			,"" 	,"" 	,""			,""		,""		  ,""		,""		,""			,""		,""			,""		,""		,""		,""		,{}	        ,{}			,{}		,".RHTPREL."})
+Aadd(aRegs,{cPerg,"17","Impr.Totais Fil/Emp?","¨Impr total Sucursal/Empresa?","Tot.Print Branch/CO?",    "mv_chh","N" ,01    ,0		,0	 ,"C" 	,"NaoVazio"							,"mv_par17"	,"Sim"		 ,"Si"		  ,"Yes"	 ,""								,""		,"Nao"			,"No"			 ,"No"		  ,""	,""			,""			,""			,""			,""		,""		,""			,""		,""		  ,"" 		,""		,""			,""		,""			,""		,""		,""		,""		,{}			,{}			,{}		,""})
+ValidPerg(aRegs,cPerg,.F.)
+Pergunte("GPR340",.F.)  
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Envia controle para a funcao SETPRINT                        ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+wnrel:="GPER340"            //Nome Default do relatorio em Disco
+wnrel:=SetPrint(cString,wnrel,cPerg,Titulo,cDesc1,cDesc2,cDesc3,.F.,aOrd,,nTamanho)
+
+If nLastKey = 27
+	Return
+EndIf
+
+SetDefault(aReturn,cString)
+
+If nLastKey = 27
+	Return
+EndIf
+
+RptStatus({|lEnd| GP340Imp(@lEnd,wnRel,cString)},Titulo)
+
+Return
+
+/*
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o    ³ GP340IMP ³ Autor ³ R.H.                  ³ Data ³ 15.04.96 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ ImpressÆo da Relacao de Cargos e Salarios                  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ GP340IMP(lEnd,WnRel,cString)                               ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                   ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
+Static Function GP340IMP(lEnd,WnRel,cString)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Locais (Programa)                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Local nSalario   := nSalMes := nSalDia := nSalHora := 0
+Local aTFIL 	 := {}
+Local aTCC       := {}
+Local aTFILF	 := {}
+Local aTCCF 	 := {}
+Local TOTCC      := 0 //Alterado o Tipo de Array para Numerico
+Local TOTCCF     := 0 //Alterado o Tipo de Array para Numerico
+Local TOTFIL     := 0 //Alterado o Tipo de Array para Numerico
+Local TOTFILF    := 0 //Alterado o Tipo de Array para Numerico
+Local cAcessaSRA := &("{ || " + ChkRH("GPER340","SRA","2") + "}")
+Local aStruSRA                                          
+Local cArqNtx   := cIndCond := ""
+Local cAliasSRA := "SRA" 	//Alias da Query
+Local nS
+Local nX
+Local X
+Local W
+Local cFilter	:= aReturn[7]
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis Private(Programa)                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Private aInfo     := {}
+Private aCodFol   := {}
+Private aRoteiro  := {}
+Private lQuery
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Carregando variaveis mv_par?? para Variaveis do Sistema.	 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+nOrdem	    := aReturn[8]
+cFilDe	    := mv_par01									//  Filial De
+cFilAte	    := mv_par02									//  Filial Ate
+cCcDe 	    := mv_par03									//  Centro de Custo De
+cCcAte	    := mv_par04									//  Centro de Custo Ate
+cMatDe	    := mv_par05									//  Matricula De
+cMatAte	    := mv_par06									//  Matricula Ate
+cNomeDe	    := mv_par07									//  Nome De
+cNomeAte    := mv_par08									//  Nome Ate
+cFuncDe	    := mv_par09									//  Funcao De
+cFuncAte    := mv_par10									//  Funcao Ate
+cSituacao   := mv_par11									//  Situacao Funcionario
+cCategoria  := mv_par12									//  Categoria Funcionario
+lSalta	    := If( mv_par13 == 1 , .T. , .F. )		//  Salta Pagina Quebra C.Custo
+nQualSal    := mv_par14									//  Sobre Salario Mes ou Hora
+nBase       := mv_par15                                                                     //  Sobre Salario Composto Base
+nTipoRel    := mv_par16                                                                     //  Imprime             Analitico               Sintetico
+lImpTFilEmp := If( mv_par17 == 1 , .T. , .F. )		//  Imprime Total Filial/Empresa
+
+//-- Modifica variaveis para a Query
+cSitQuery := ""
+For nS:=1 to Len(cSituacao)
+	cSitQuery += "'"+Subs(cSituacao,nS,1)+"'"
+	If ( nS+1) <= Len(cSituacao)
+		cSitQuery += "," 
+	Endif
+Next nS
+cCatQuery := ""
+For nS:=1 to Len(cCategoria)
+	cCatQuery += "'"+Subs(cCategoria,nS,1)+"'"
+	If ( nS+1) <= Len(cCategoria)
+		cCatQuery += "," 
+	Endif
+Next nS
+Titulo := STR0012			//"RELACAO DE CARGOS E SALARIOS "
+If nOrdem==1
+	Titulo += STR0013		//"(C.CUSTO + MATRICULA)"
+ElseIf nOrdem==2
+	Titulo +=STR0014		//"(C.CUSTO + NOME)"
+ElseIf nOrdem==3 
+	Titulo +=STR0015		//"(C.CUSTO + FUNCAO)"
+ElseIf nOrdem == 4		
+	Titulo +=STR0034		//"(NOME)"
+ElseIf nOrdem == 5		
+	Titulo +=STR0035		//"(MATRICULA)"
+ElseIf nOrdem == 6		
+	Titulo +=STR0036		//"(FUNCAO)"
+EndIf		
+
+aCampos := {}
+AADD(aCampos,{"FILIAL"   ,"C",02,0})
+AADD(aCampos,{"FILMAT"   ,"C",03,0})
+AADD(aCampos,{"MAT"      ,"C",06,0})
+AADD(aCampos,{"CC"       ,"C",09,0})
+AADD(aCampos,{"SALMES"   ,"N",TamSX3("RA_SALARIO")[1],2})
+AADD(aCampos,{"SALHORA"  ,"N",TamSX3("RA_SALARIO")[1],2})
+AADD(aCampos,{"CODFUNC"  ,"C",05,0})
+AADD(aCampos,{"NOME"     ,"C",30,0})
+AADD(aCampos,{"ADMISSA"  ,"D",08,0})
+
+cNomArqA:=CriaTrab(aCampos)
+dbUseArea( .T., __cRDDNTTS, cNomArqA, "TRA", if(.F. .Or. .F., !.F., NIL), .F. )
+// Sempre na ordem de Centro de Custo + Matricula para totalizar
+dbSelectArea( "SRA" )
+lQuery	:=	.F.
+
+#IFDEF TOP
+	If TcSrvType() != "AS/400"
+		lQuery	:=.T.
+	Endif
+#ENDIF	
+
+If lQuery
+	cQuery := "SELECT * "		
+	cQuery += " FROM "+	RetSqlName("SRA")
+	cQuery += " WHERE "
+	If !lImpTFilEmp
+		cQuery += " RA_FILIAL  between '" + cFilDe  + "' AND '" + cFilAte + "' AND"
+		cQuery += " RA_MAT     between '" + cMatDe  + "' AND '" + cMatAte + "' AND"
+		cQuery += " RA_NOME    between '" + cNomeDe + "' AND '" + cNomeAte+ "' AND"
+		cQuery += " RA_CC      between '" + cCcDe   + "' AND '" + cCcate  + "' AND"
+		cQuery+=  " RA_CODFUNC between '" + cFuncDe + "' AND '" + cFuncAte+ "' AND"
+	Endif
+	cQuery += " RA_CATFUNC IN (" + Upper(cCatQuery) + ") AND" 
+	cQuery += " RA_SITFOLH IN (" + Upper(cSitQuery) + ") AND" 
+	If TcSrvType() != "AS/400"
+		cQuery += "  D_E_L_E_T_ <> '*' "
+	Else
+		cQuery += "  @DELETED@  <> '*' "	
+	Endif 
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Se houver filtro executa parse para converter expressoes adv para SQL    ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	If ! Empty(cFilter)
+		cQuery += " and " + GPEParSQL(cFilter)
+	Endif   
+	cQuery += " ORDER BY RA_CC,RA_FILIAL,RA_MAT"
+	cQuery := ChangeQuery(cQuery)	
+	aStruSRA := SRA->(dbStruct())
+	SRA->( dbCloseArea() )
+	dbUseArea(.T., "TOPCONN", TCGenQry(,,cQuery), 'SRA', .F., .T.)
+	For nX := 1 To Len(aStruSRA)
+		If ( aStruSRA[nX][2] <> "C" )
+			TcSetField(cAliasSRA,aStruSRA[nX][1],aStruSRA[nX][2],aStruSRA[nX][3],aStruSRA[nX][4])
+		EndIf
+	Next nX
+Else
+	dbSetOrder(2)					
+	dbGoTop()
+Endif
+
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Carrega Regua Processamento											  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+SetRegua(RecCount())
+
+cFilialAnt := "!!" 
+cFANT 	  := "!!"
+cCANT 	  := Space(20)
+
+TPAGINA	 := TEMPRESA := TFILIAL := TCCTO := FL1 := 0
+TEMPRESAF := TFILIALF := TCCTOF	:= 0
+
+While !Eof()
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Movimenta Regua Processamento										  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	IncRegua()
+
+	If lEnd
+		@Prow()+1,0 PSAY cCancel
+		Exit
+	EndIf
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Verifica Quebra de Filial 											  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	/*
+	If '01' # cFilialAnt
+		If !Fp_CodFol(@aCodFol,'01') 			 .Or.;
+			!fInfo(@aInfo,'01')
+			dbSelectArea("SRA")
+			dbSkip()
+			If Eof()
+				Exit
+			Endif	
+			Loop
+		Endif
+		dbSelectArea( "SRA" )
+	///cFilialAnt := SRA->RA_FILIAL
+	EndIf */
+	cFilialAnt := '01'
+
+	If !lQuery
+		IF !lImpTFilEmp // -- Se nao imprimir %ais Filial/Empresa Filtra os Parametros Selecionados
+			If ( SRA->RA_FILIAL < cFilDe )	.Or. ( SRA->RA_FILIAL > cFilAte )	.Or.;
+			   ( SRA->RA_NOME < cNomeDe )	.Or. ( SRA->RA_NOME > cNomeAte )	.Or.;
+				( SRA->RA_MAT < cMatDe )	.Or. ( SRA->RA_MAT > cMatAte )		.Or.;
+				(SRA->RA_CC < cCcDe) 		.Or. (SRA->RA_CC > cCcAte)			.Or.;
+				(SRA->RA_CODFUNC < cFuncDe).Or. (SRA->RA_CODFUNC > cFuncAte)
+				dbSkip()
+				Loop			
+			EndIf
+	    EndIF
+	
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Testa Situacao do Funcionario na Folha						 ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If !( SRA->RA_SITFOLH $ cSituacao ) .Or. !( SRA->RA_CATFUNC $ cCategoria )
+			dbSkip()
+			Loop
+		EndIf
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Consiste Filtro da setprint						             ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If ! Empty(cFilter) .And. ! &(cFilter)
+			dbSkip()
+			Loop
+		EndIf
+   Endif
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Consiste controle de acessos e filiais validas               ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	/*
+	If !('01' $ fValidFil()) .Or. !Eval(cAcessaSRA)
+		dbSkip()
+		Loop
+	EndIf */
+	nSalario   := 0
+	nSalMes	  := 0
+	nSalDia	  := 0
+	nSalHora   := 0
+
+	If nBase = 1		                                        // 1 composto
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Calcula Salario Incorporado Mes , Dia , Hora do Funcionario  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		fSalInc(@nSalario,@nSalMes,@nSalHora,@nSalDia,.T.)
+	Else
+		fSalario(@nSalario,@nSalHora,@nSalDia,@nSalMes,"A")      // 2 Base
+		If nQualSal == 1		// 1-Mes
+			nSalMes := nSalario			
+		Else						// 2-Hora
+			nSalHora := Round(nSalario / SRA->RA_HRSMES,MsDecimais(1))
+		EndIf			
+	Endif
+	
+	dbSelectArea( "SRA" )
+   RecLock("TRA",.T.)
+  	Replace FILIAL    With '01'
+  	Replace FILMAT    With If(SRA->RA_FILIAL=='97','PJ ','CLT')
+	Replace MAT       With SRA->RA_MAT  
+   Replace CC        With SRA->RA_CC 
+   Replace CODFUNC   With SRA->RA_CODFUNC
+   Replace ADMISSA   With SRA->RA_ADMISSA
+   Replace NOME      With SRA->RA_NOME
+	If nQualSal == 1
+		Replace SALMES    With nSalMes         
+	Else
+		Replace SALHORA   With nSalHora    
+	Endif	
+	MsUnLock()
+	
+	If cFANT == "!!"
+		cFANT := '01'
+		cCANT := substr(SRA->RA_CC+space(20),1,20)
+	EndIf
+	
+	TEMPRESA  += If( nQualSal == 1 , nSalMes , nSalHora )
+	TEMPRESAF ++
+
+	TFILIAL	+= If(nQualSal == 1 , nSalMes , nSalHora )
+	TFILIALF ++
+			
+	If substr(SRA->RA_CC+space(20),1,20) = cCANT
+		TCCTO  += If( nQualSal == 1 , nSalMes , nSalHora )
+		TCCTOF ++
+	Else
+		AADD(aTCC ,{cFANT+cCANT,TCCTO })
+		AADD(aTCCF,{cFANT+cCANT,TCCTOF })
+		TCCTO  := If( nQualSal == 1 , nSalMes , nSalHora )
+		TCCTOF := 1
+	EndIf
+		
+	cCANT := substr(SRA->RA_CC+space(20),1,20)
+	cFANT := '01'
+	dbSelectArea( "SRA" )
+	dbSkip()
+EndDo
+
+If Eof() .And. TFILIAL > 0
+	AADD(aTFIL , {cFANT ,TFILIAL})
+	AADD(aTFILF, {cFANT ,TFILIALF})
+	AADD(aTCC  , {cFANT + cCANT ,TCCTO})
+	AADD(aTCCF , {cFANT + cCANT ,TCCTOF})
+EndIf
+
+If lQuery
+	dbSelectArea("SRA")
+	dbCloseArea()
+Endif	
+        
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ EMISSAO DO RELATORIO   								 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If TFILIALF > 0
+	dbSelectArea("TRA")
+	dbGotop()
+
+	If nOrdem == 1
+		cIndCond := "TRA->CC+TRA->FILIAL+FILMAT+TRA->MAT"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cCcDe + cMatDe,.T.)
+	ElseIf nOrdem == 2
+		cIndCond := "TRA->CC+TRA->FILIAL+FILMAT+TRA->NOME"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cCcDe + cNomeDe,.T.)
+   ElseIf nOrdem == 3
+		cIndCond := "TRA->CC +TRA->FILIAL+FILMAT+TRA->CODFUNC"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cCcDe,.T.)
+	ElseIf nOrdem == 4
+		cIndCond := "TRA->NOME+TRA->FILIAL+FILMAT"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cNomeDe,.T.)
+	ElseIf nOrdem == 5
+		cIndCond := "TRA->MAT+TRA->FILIAL+FILMAT"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cMatDe,.T.)
+	ElseIf nOrdem == 6
+		cIndCond := "TRA->CODFUNC+TRA->FILIAL+FILMAT"
+		cArqNtx := CriaTrab(Nil,.F.)
+		IndRegua("TRA",cArqNtx,cIndCond)
+		dbSeek(cFilDe + cFuncDe,.T.)			
+   EndIf
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ Carrega Regua Processamento											  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	SetRegua(RecCount())
+
+	cFANT := TRA->FILIAL
+	cCANT := substr(TRA->CC+space(20),1,20)
+		
+	While !Eof()
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Movimenta Regua Processamento										  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		IncRegua()
+	
+		If lEnd
+			@Prow()+1,0 PSAY cCancel
+			Exit
+		EndIf
+		If ( TRA->FILIAL < cFilDe ) .Or. ( TRA->FILIAL > cFilAte ) .Or.;
+		   ( TRA->NOME < cNomeDe )	.Or. ( TRA->NOME > cNomeAte )	 .Or.;
+			( TRA->MAT < cMatDe ) .Or. ( TRA->MAT > cMatAte )	.Or.;
+			(TRA->CC < cCcDe) 	.Or. (TRA->CC > cCcAte)	 .Or.;
+			(TRA->CODFUNC < cFuncDe).Or. (TRA->CODFUNC > cFuncAte)
+			dbSkip()
+			Loop			
+		EndIf
+		// Apenas por ordem de Centro de Custo
+		If nOrdem==1 .Or. nOrdem ==2 .Or. nOrdem ==3
+			IF substr(TRA->CC+space(20),1,20) # cCANT .Or. TRA->FILIAL # cFANT
+				If !Empty(TOTCC) .or. !Empty(TOTCCF	)	
+					IMPR(Repli("-",132),"C")
+					For x=1 To Len(aTCC)
+						If aTCC[X,1] = cFANT + cCANT 
+							DET := STR0017+Substr(cCANT+Space(20),1,20)+"-"+Subs(DescCc(cCAnt,cFAnt),1,20)+" "+STR0018+Transform(aTCCF[X,2],"@E 999,999")+"   "+Transform(aTCC[X,2],cPict1)	//"TOTAL CENTRO DE CUSTO  "###"  QTDE......:"
+							IF lImpTFilEmp // Se Imprimir %ais Filial/Empresa
+								For w=1 To Len(aTFIL)
+									If aTFIL[W,1] = cFANT
+									  DET +=Space(02)+Transform((aTCC[X,2]/aTFIL[W,2])*100,"@E 999.999")
+									  DET +=Space(02)+Transform((aTCC[X,2]/TEMPRESA)*100,"@E 999.999")
+										Exit
+									EndIf
+								Next w
+						    EndIF
+						EndIf
+					Next x
+					IMPR(DET,"C")
+					IMPR(Repli("-",132),"C")
+					If lSalta .And. (TRA->FILIAL == cFANT)
+						IMPR(" ","P")
+					EndIf
+				EndIf
+				dbSelectArea( "TRA" )
+			EndIf
+		EndIf
+			
+		If Eof() .Or. TRA->FILIAL # cFANT
+		   If !Empty(TOTCCF) .And. !Empty(TOTFIL) 		
+				IMPR(Repli("-",132),"C")
+				IF lImpTFilEmp // Se Imprimir %ais Filial/Empresa
+					For x=1 To Len(aTFIL)
+						IF aTFIL[X,1] = cFANT
+							cNomeFilial:=Space(15)
+							If fInfo(@aInfo,cFANT)
+								cNomeFilial:=aInfo[1]
+							Endif
+							DET := STR0019+cFANT+" - " + cNomeFilial+"  "+STR0020+Transform(TOTFILF,"@E 999,999")+"        "+Transform(TOTFIL,cPict1)	//"TOTAL DA FILIAL "###"                        QTDE......:"
+							For w=1 To Len(aTFIL)
+								If aTFIL[W,1] = cFANT
+									DET +=Space(19)+Transform((aTFIL[W,2] / TEMPRESA)*100,"@E 999.999")
+									Exit
+								Endif
+							Next w
+						Endif
+					Next x
+				EndIF
+				IMPR(DET,"C")
+				IMPR(Repli("-",132),"C")
+				IMPR(" ","P")
+			EndIf
+			dbSelectArea( "TRA" )
+		EndIf
+
+		If nTipoRel == 1				// Analitico
+			DescMO := "   "   
+			FBuscaSRJ(TRA->FILIAL,TRA->CODFUNC,@DescMO)
+			DET :=""	
+			DET := TRA->FILMAT+"  "+TRA->MAT + " "
+			DET += SubStr(TRA->NOME,1,30)+" "+PadR(DTOC(TRA->ADMISSA),10)
+			DET += " "+TRA->CODFUNC+"-"+DESCFUN(TRA->CODFUNC,TRA->FILIAL)+" "
+			DET += Left(DescMO,18) +" "+Transform( If( nQualSal == 1 , TRA->SALMES, TRA->SALHORA ) ,cPict2)+"  "
+			
+			For x:=1 To Len(aTCC)
+				If aTCC[X,1] = TRA->FILIAL+substr(TRA->CC+space(20),1,20)
+					DET += Transform( (If( nQualSal == 1 , TRA->SALMES, TRA->SALHORA  ) / aTCC[X,2] )*100,"@E 999.999")+" "
+					TOTCC := aTCC[X,2]
+					TOTCCF:= aTCCF[X,2]
+				EndIf
+			Next x
+			/*
+			IF lImpTFilEmp // Se Imprimir %ais Filial/Empresa
+				For x=1 To Len(aTFIL)
+					If aTFIL[X,1] = TRA->FILIAL
+						DET += Transform( (If( nQualSal==1 , TRA->SALMES, TRA->SALHORA  ) / aTFIL[x,2] )*100,"@E 999.999")+"  "
+						DET += Transform( (If( nQualSal==1 , TRA->SALMES, TRA->SALHORA  ) / TEMPRESA )* 100,"@E 999.999")
+					EndIf
+				Next x
+			EndIF
+			*/
+			TPAGINA += If( nQualSal == 1 , TRA->SALMES, TRA->SALHORA  )
+			IMPR(DET,"C")
+		EndIf	
+		
+		cFANT := TRA->FILIAL
+		cCANT := substr(TRA->CC+space(20),1,20) 
+		
+		For x:=1 To Len(aTCC)
+			If aTCC[X,1] = TRA->FILIAL+substr(TRA->CC+space(20),1,20)
+				TOTCC := aTCC[X,2]
+				TOTCCF:= aTCCF[X,2]
+			EndIf
+		Next x
+		
+		For x=1 To Len(aTFIL)
+			If aTFIL[X,1] = TRA->FILIAL
+				TOTFIL := aTFIL[X,2]
+				TOTFILF:= aTFILF[X,2]
+			EndIf
+		Next x
+				
+		dbSelectArea( "TRA" )
+		dbSkip()
+	EndDo
+
+	If nOrdem ==1 .Or. nOrdem==2 .Or. nOrdem==3
+		If !Empty(TOTCC) .And. !Empty(TOTCCF) .And. !Empty(TOTFIL) .And. !Empty(TOTFILF) .Or. ( Eof()  .And. !Empty(TOTCC) )
+			IMPR(Repli("-",132),"C")
+			DET := STR0017 + cCANT + ;					//"TOTAL DO CENTRO DE CUSTO "
+					"-" + DescCc(cCAnt,cFAnt)+" "+STR0018+Transform(TOTCCF,"@E 999,999")+;		//" QTDE.:"
+					Space(04)+Transform(TOTCC,cPict1)
+			 IF lImpTFilEmp // Se Imprimir %ais Filial/Empresa
+  				DET +=Space(3)+Transform((TOTCC/TOTCC)*100,"@E 999.999")
+				DET +=Space(02)+Transform((TOTCC/TEMPRESA)*100,"@E 999.999")  
+		    EndIF
+			IMPR(DET,"C")
+		EndIf
+	EndIf	
+
+	IMPR(Repli("-",132),"C")			
+	cNomeFilial:=Space(15)
+	If fInfo(@aInfo,cFANT)
+		cNomeFilial:=ainfo[1]
+	EndIf
+	IF lImpTFilEmp // Se Imprimir %ais Filial/Empresa
+		DET := STR0019+ cFANT + " - " + cNomeFilial+Space(29)+STR0020+Transform(TOTFILF,"@E 999,999")+" "+Transform(TOTFIL,cPict1)	//"TOTAL DA FILIAL "###"QTDE.:"
+		DET +=Space(19)+Transform((TOTFIL / TEMPRESA)*100,"@E 999.999")
+		IMPR(DET,"C")
+		IMPR(Repli("-",132),"C")
+		IMPR(Repli("-",132),"C")
+		DET := STR0025+" - " + Left(SM0->M0_NOMECOM,39) +Space(2)+ STR0026+Transform(TEMPRESAF , "@E 999,999")+" "+;	//"TOTAL DA EMPRESA  "###"QTDE.:"
+		Transform(TEMPRESA ,cPict1)
+		IMPR(DET,"C")
+		IMPR(Repli("-",132),"C")
+    EndIF
+    IMPR(" ","F")	
+	aTCC	:={}
+	aTFIL	:={}
+EndIf
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Termino do relatorio													  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+dbSelectArea("SRA")
+dbSetOrder(1)
+Set Filter To
+
+dbSelectArea("TRA")
+dbCloseArea()
+fErase( cArqNtx + OrdBagExt() )
+
+If TFILIALF > 0
+	If aReturn[5] = 1
+		Set Printer To
+		Commit
+		ourspool(wnrel)
+	Endif
+	MS_FLUSH()
+Endif	
+
+*--------------------------------------------------*
+Static Function fBuscaSRJ( cFil , cCodigo , DescMO )
+*--------------------------------------------------*
+Local cAlias := Alias()
+
+dbSelectArea( "SRJ" )
+If ( cFil # Nil .And. cFilial == "  " ) .Or. cFil == Nil
+	cFil := cFilial
+Endif
+If dbSeek( cFil + cCodigo )
+	If Left(RJ_MAOBRA ,1 ) == "D"
+		DescMO := STR0027		//"DIR"
+	Elseif Left(RJ_MAOBRA ,1 ) == "I"
+		DescMO := STR0028		//"IND"
+	Else
+		DescMO := "   "
+	Endif
+Else
+	DescMO := "***"
+Endif
+	
+dbSelectArea(cAlias)
+Return(.T.)

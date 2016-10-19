@@ -1,0 +1,4250 @@
+#include "FINR140.CH"
+#Include "PROTHEUS.Ch"
+
+#DEFINE DESCRICAO		1
+#DEFINE ORIG			2
+#DEFINE PAGAR			3
+#DEFINE RECEB			4
+#DEFINE DISPO			5
+
+#DEFINE DISPONIVEL	2
+
+#DEFINE DT_VENC			1
+#DEFINE PREFIXO			2
+#DEFINE TITUL				3
+#DEFINE TIPO				4
+#DEFINE EMISSAO			5
+#DEFINE FORNEC				6
+#DEFINE NOM_FORNEC		7
+#DEFINE HISTORICO			8
+#DEFINE VL_ORIG			9
+#DEFINE VL_PAG				10
+#DEFINE VL_REC				11
+#DEFINE VL_DIS				12
+#DEFINE TAXA				13
+#DEFINE OBSERV				14
+#DEFINE DESC_TOTAL		15
+
+Static lFWCodFil := FindFunction("FWCodFil")
+Static nTamFilial:= 2 //IIf( lFWCodFil, FWGETTAMFILIAL, 2 )
+
+// 17/08/2009 - Compilacao para o campo filial de 4 posicoes
+// 18/08/2009 - Compilacao para o campo filial de 4 posicoes
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o	 ³ FINR140	³ Autor ³ Daniel Tadashi Batori ³ Data ³ 12.09.06 				³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Fluxo de Caixa Analitico											 				³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe e ³ FINR140(void)															  				³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User function UNMFR140()
+Local oReport
+Private aAplicSeh
+
+//If FindFunction("TRepInUse") .And. TRepInUse()
+	oReport := ReportDef()
+	oReport:PrintDialog()
+//Else
+//	Return U_FINR140R3() // Executa versão anterior do fonte
+//Endif
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o    ³ ReportDef³ Autor ³ Daniel Batori         ³ Data ³ 11.08.06 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Definicao do layout do Relatorio									  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ ReportDef(void)                                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Generico                                                   ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function ReportDef()
+Local oReport  
+Local oSection1, oSection2, oSection3
+Local nTamDesc
+Local cPictVal
+Local nTamVal, nTamTit//, nTamTot, nTamMov, nTamDisp, nTamBase
+
+oReport := TReport():New("FINR140",STR0004,"FIN140",{|oReport| ReportPrint(oReport)},STR0001+STR0002+STR0003)
+
+oReport:SetLandScape(.T.) 
+oReport:DisableOrientation()
+
+Ajusta()
+pergunte("FIN140",.F.)
+aAplicSeh := Aplicacoes(mv_par03==1,MV_PAR02)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis utilizadas para parametros								  ³
+//³ mv_par01				// Nro de Dias 								  ³
+//³ mv_par02				// Moeda 										  ³
+//³ mv_par03				// Imprime Por Filial ou Empresa 		  ³
+//³ mv_par04				// Considera Pedidos de Vendas			  ³
+//³ mv_par05				// Considera Pedidos de Compras			  ³
+//³ mv_par06				// Considera Vencidos						  ³
+//³ mv_par07				// Considera Comissoes						  ³
+//³ mv_par08				// Considera Moedas							  ³
+//³ mv_par09				// Do Prefixo       							  ³
+//³ mv_par10				// At‚ o Prefixo       						  ³
+//³ mv_par11				// Retroativo?         						  ³ 
+//³ mv_par12				// Outras Moedas?    				        ³
+//³ mv_par13				// Lista abatimentos?				        ³
+//³ mv_par14   			// Tit. Emissao Futura                   ³
+//³ mv_par15   			// Considera limite de credito ?			  ³
+//³ mv_par16   			// Tipo de Saldo ?							  ³
+//³                        (Normal/Conciliado/Nao Conciliado)	  ³
+//³ mv_par17   			// Compoe Saldo por?		(Data da Baixa/  ³
+//³                        Data de Credito/Data Digitacao)   	  ³
+//³ mv_par19            // Lista Estorno?                        ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+nTamTit := TamSX3("E2_NUM")[1] + TamSX3("E2_PARCELA")[1]
+cPictVal := PesqPict("SE2","E2_VALOR")
+nTamVal	:= TamSX3("E2_VALOR")[1]+6
+//nTamBase := TamSX3("E2_VENCREA")[1]+TamSX3("E2_PREFIXO")[1]+nTamTit+TamSX3("E2_TIPO")[1]+TamSX3("E2_EMISSAO")[1]+TamSX3("E2_FORNECEDOR")[1]+TamSX3("E2_NOMFOR")[1]+TamSX3("E2_HIST")[1] 
+        
+//nTamTot  := nTamBase+nTamVal+4 // Desc. totais
+//nTamMov  := nTamBase+48 //Desc. de movimentacoes
+//nTamDisp  := nTamBase+65 // Desc. disponibilidade 
+
+oSection1 := TRSection():New(oReport,STR0004,{"SE2"},) //"Fluxo de Caixa Analitico"
+TRCell():New(oSection1,"DESCRIC",,,,96,.F.,) 
+TRCell():New(oSection1,"VL_ORIGI",,STR0037,cPictVal,nTamVal+4,.F.,)  //"Valor Original"
+TRCell():New(oSection1,"VL_PAGAR",,STR0038,cPictVal,nTamVal+2,.F.,)  //"a Pagar"
+TRCell():New(oSection1,"VL_RECEB",,STR0039,cPictVal,nTamVal+2,.F.,)  //"a Receber"
+TRCell():New(oSection1,"VL_DISPO",,STR0040,cPictVal,nTamVal+2,.F.,)  //"Disponivel"
+oSection1:SetHeaderSection(.F.)
+oSection1:Setnofilter("SE2")
+
+oSection2 := TRSection():New(oReport,STR0043,{"SE2"},)  //"Descricao"
+TRCell():New(oSection2,"DESCRIC",,,,150,.F.,) 
+TRCell():New(oSection2,"VL_DISPO",,STR0040,cPictVal,50,.F.,)  //"Disponivel"
+oSection2:SetHeaderSection(.F.)
+oSection2:Setnofilter("SE2")
+
+oSection3 := TRSection():New(oReport,STR0044,{"SE2"},)  //"Total"
+TRCell():New(oSection3,"TOTAL",,,,97,.F.,)
+TRCell():New(oSection3,"E2_VENCREA","SE2",STR0029,,,.F.,)  //"Data Ref"
+TRCell():New(oSection3,"E2_VENCORI","SE2","Vencto Original",,,.F.,)  //
+TRCell():New(oSection3,"E2_PREFIXO","SE2",STR0030,,,.F.,) //"Prf"
+TRCell():New(oSection3,"TITULO",,STR0031,,nTamTit,.F.,) //"Numero-PC"
+TRCell():New(oSection3,"E2_TIPO","SE2",STR0032,,,.F.,)  //"Tipo"
+TRCell():New(oSection3,"E2_EMISSAO","SE2",STR0033,,,.F.,)  //"Dt Emiss"
+TRCell():New(oSection3,"E2_FORNECEDOR","SE2",STR0034,,,.F.,)  //"Cli/For"
+TRCell():New(oSection3,"E2_NOMFOR","SE2",STR0035,,25,.F.,)  //"Nome Cliente/Fornecedor"
+TRCell():New(oSection3,"E2_HIST","SE2",STR0036,,25,.F.,)  //"Historico"
+TRCell():New(oSection3,"VL_ORIGI",,STR0037,cPictVal,25,.F.,)  //"Valor Original"
+TRCell():New(oSection3,"VL_PAGAR",,STR0038,cPictVal,25,.F.,)  //"a Pagar"
+TRCell():New(oSection3,"VL_RECEB",,STR0039,cPictVal,25,.F.,)  //"a Receber"
+TRCell():New(oSection3,"VL_DISPO",,STR0040,cPictVal,25,.F.,)  //"Disponivel"
+TRCell():New(oSection3,"M2_MOEDA1",,STR0041,,,.F.,)  //"Taxa do Dia"
+TRCell():New(oSection3,"OBSERVACAO",,STR0042,cPictVal,nTamVal,.F.,)  //"Observacoes"
+oSection3:Cell("VL_ORIGI"):SetHeaderAlign("RIGHT")
+oSection3:Cell("VL_PAGAR"):SetHeaderAlign("RIGHT")
+oSection3:Cell("VL_RECEB"):SetHeaderAlign("RIGHT")
+oSection3:Cell("VL_DISPO"):SetHeaderAlign("RIGHT")
+oSection3:SetHeaderPage(.T.)
+oSection3:Setnofilter("SE2")
+
+Return oReport
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Programa  ³ReportPrint³ Autor ³Daniel Batori          ³ Data ³10.07.06	³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³A funcao estatica ReportDef devera ser criada para todos os  ³±±
+±±³          ³relatorios que poderao ser agendados pelo usuario.           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Retorno   ³Nenhum                                                       ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ExpO1: Objeto Report do Relatório                            ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³   DATA   ³ Programador   ³Manutencao efetuada                          ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³          ³               ³                                             ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function ReportPrint(oReport)
+Local oSection1  := oReport:Section(1)
+Local oSection2  := oReport:Section(2)
+Local oSection3  := oReport:Section(3)
+Local aDados1[5]
+Local aDados2[2]
+Local aDados3[16]
+
+LOCAL cbCont,CbTxt
+LOCAL nDias
+LOCAL nValor
+LOCAL w
+LOCAL nTotSaidas
+LOCAL dDataVenc
+LOCAL lAchou	:= .F.
+LOCAL dDataAte
+LOCAL dDataImp
+LOCAL limite			:= 220
+LOCAL lContinua		:= .T.
+LOCAL lFirst			:= .T.
+LOCAL nDispon			:= 0
+LOCAL nEl				:= 0
+LOCAL aContas			:= {}
+LOCAL nDiasInt			:= 0
+LOCAL nJurDiario		:= 0
+LOCAL nValJuros		:= 0
+LOCAL nValGanho		:= 0
+LOCAL aValAplic      := 0
+LOCAL nTotTitR			:= 0
+LOCAL nTotTitP			:= 0
+LOCAL nTotGTitR		:= 0
+LOCAL nTotGTitP		:= 0
+LOCAL nRecHoje			:= 0
+LOCAL nPagHoje			:= 0
+Local nChqPend			:= 0
+LOCAL nTotAplic		:= 0
+LOCAL nTotResg			:= 0
+LOCAL nTotEntradas	:= 0
+LOCAL aAplic			:= {}
+LOCAL aResgate			:= {}
+LOCAL aBancosA			:= {}
+LOCAL aBancosR			:= {}
+LOCAL nSalDup			:= 0
+LOCAL cArqSA6			:= " "
+LOCAL cArqSE1			:= " "
+LOCAL cArqSE2			:= " "
+LOCAL cArqSE5			:= " "
+LOCAL cArqSEG			:= " "
+LOCAL cArqSEH			:= " "
+LOCAL cCondSE1			:= " "
+LOCAL cCondSE2			:= " "
+LOCAL cCondSE5			:= " "
+LOCAL nIndexSE3
+LOCAL nIndexSE1
+LOCAL nIndexSE2
+LOCAL nIndexSE5
+LOCAL nIndexSEG
+LOCAL nIndexSEH
+LOCAL nApagVenc		:= 0 
+LOCAL nArecVenc		:= 0 
+LOCAL nComissoes	:= 0
+LOCAL cArqSE3		:= ""
+Local dDtSE8        := Ctod("")
+Local lSldSE8		:= .F.
+Local nIndSE8		:= 1
+Local cArqSE8       := ""
+Local nRegSa6       := 0
+Local nRecSE8       := 0
+Local nDecs			:= GetMv("MV_CENT"+(IIF(mv_par02 > 1 , STR(mv_par02,1),""))) 
+Local nMoedaBco		:=	1
+Local nMoeda        := mv_par02
+Local cAplCotas   	:= GetMv("MV_APLCAL4")
+Local nAscan
+Local lDataInf  := .F.
+Local lAchouUm  := .F.
+Local nAbatim
+Local nVlrImp	:= 0
+Local dOldData	:= dDatabase
+Local nLimCred  := 0
+Local j
+Local i         := 0  
+Local lLibCheq  := GetMv("MV_LIBCHEQ")=="N" // Para controlar os cheques pendentes de liberacao.
+Local lChqLiber := .T.
+Local lTxMoeda	:= .T.
+Local cTitulo   := OemToAnsi(STR0004)  // "Fluxo de Caixa Analitico"
+Local nRegs
+Local cIpProj   := GetMv("MV_IPPRJAP")
+Local dDataTrab
+Local dDataVcOri     
+Local nX             
+Local aRecSE1	:={}          
+Local nPos      := 0
+Local nAcumRc 	:= 0
+Local nTotFutR  := 0
+Local aStru 	:= SE1->(DbStruct())
+Local lImpFut   := .F.
+Local lBxFut	:= .F.
+Local lImpDev	:= .F.
+Local lMovBco   := .F.  
+Local lSldZera  := IIF(mv_par18==1,.F.,.T.)
+Local dVencRea		:= CtoD("")
+Local dDataVcOri	:= CtoD("")
+Local nDiasRet		:= 0 
+Local nX			:= 0
+
+Local nValMoeda:=	0   
+Local cNumMoeda:= "M2_MOEDA"
+Private cErros 	:= ""
+Private adCompras := {},adVendas:={}
+Private aCompras	:= {},aVendas:={}
+
+//Ponto de entrada para escolha entre bancos com ou sem movimento
+If ExistBlock("FA140MVB")
+	lMovBco := ExecBlock("FA140MVB")
+Endif
+
+oSection1:Cell("DESCRIC"		):SetBlock( { || aDados1[DESCRICAO] })
+oSection1:Cell("VL_ORIGI"		):SetBlock( { || aDados1[ORIG] })
+oSection1:Cell("VL_PAGAR"		):SetBlock( { || aDados1[PAGAR] })
+oSection1:Cell("VL_RECEB"		):SetBlock( { || aDados1[RECEB] })
+oSection1:Cell("VL_DISPO"		):SetBlock( { || aDados1[DISPO] })
+
+oSection2:Cell("DESCRIC"		):SetBlock( { || aDados2[DESCRICAO] })
+oSection2:Cell("VL_DISPO"		):SetBlock( { || aDados2[DISPONIVEL] })
+  	
+oSection3:Cell("TOTAL"			):SetBlock( { || If(lBxFut, aDados3[DESC_TOTAL],If(lImpDev, STR0018,aDados3[DESC_TOTAL])) })
+#IFDEF TOP
+	oSection3:Cell("E2_VENCORI"	):SetBlock( { || aDados3[16] })
+	oSection3:Cell("E2_VENCREA"	):SetBlock( { || If(lBxFut, aDados3[DT_VENC]	,If(lImpDev,, E1VENC->E1_VENCREA)) })
+	oSection3:Cell("E2_PREFIXO"	):SetBlock( { || If(lBxFut, aDados3[PREFIXO]	,If(lImpDev,, E1VENC->E1_PREFIXO)) })
+	oSection3:Cell("TITULO"			):SetBlock( { || If(lBxFut, aDados3[TITUL]		,If(lImpDev,, E1VENC->E1_NUM+(IIF(!EMPTY(E1VENC->E1_PARCELA),"-",""))+E1VENC->E1_PARCELA)) })
+	oSection3:Cell("E2_TIPO"		):SetBlock( { || If(lBxFut, aDados3[TIPO]		,If(lImpDev,, E1VENC->E1_TIPO)) })
+	oSection3:Cell("E2_EMISSAO"	):SetBlock( { || If(lBxFut, aDados3[EMISSAO]	,If(lImpDev,, E1VENC->E1_EMISSAO)) })
+	oSection3:Cell("E2_FORNECEDOR"):SetBlock( { || If(lBxFut, aDados3[FORNEC]		,If(lImpDev,, E1VENC->E1_CLIENTE)) })
+	oSection3:Cell("E2_NOMFOR"		):SetBlock( { || If(lBxFut, aDados3[NOM_FORNEC],If(lImpDev,, SubStr(E1VENC->E1_NOMCLI,1,25))) })
+	oSection3:Cell("E2_HIST"		):SetBlock( { || If(lBxFut, aDados3[HISTORICO]	,If(lImpDev,, If(E1VENC->E1_SALDO == 0,STR0046,SubStr(E1VENC->E1_HIST,1,25)))) })	//"Tit.Baixado p/Rec. Futuro"
+#ELSE
+	oSection3:Cell("E2_VENCREA"	):SetBlock( { || If(lBxFut, aDados3[DT_VENC]	,If(lImpDev,, SE1->E1_VENCREA)) })
+	oSection3:Cell("E2_PREFIXO"	):SetBlock( { || If(lBxFut, aDados3[PREFIXO]	,If(lImpDev,, SE1->E1_PREFIXO)) })
+	oSection3:Cell("TITULO"			):SetBlock( { || If(lBxFut, aDados3[TITUL]		,If(lImpDev,, SE1->E1_NUM+(IIF(!EMPTY(SE1->E1_PARCELA),"-",""))+SE1->E1_PARCELA)) })
+	oSection3:Cell("E2_TIPO"		):SetBlock( { || If(lBxFut, aDados3[TIPO]		,If(lImpDev,, SE1->E1_TIPO)) })
+	oSection3:Cell("E2_EMISSAO"	):SetBlock( { || If(lBxFut, aDados3[EMISSAO]	,If(lImpDev,, SE1->E1_EMISSAO)) })
+	oSection3:Cell("E2_FORNECEDOR"):SetBlock( { || If(lBxFut, aDados3[FORNEC]		,If(lImpDev,, SE1->E1_CLIENTE)) })
+	oSection3:Cell("E2_NOMFOR"		):SetBlock( { || If(lBxFut, aDados3[NOM_FORNEC],If(lImpDev,, SubStr(SE1->E1_NOMCLI,1,25))) })
+	oSection3:Cell("E2_HIST"		):SetBlock( { || If(lBxFut, aDados3[HISTORICO]	,If(lImpDev,, If(SE1->E1_SALDO == 0,STR0046,SubStr(SE1->E1_HIST,1,25)))) })	//"Tit.Baixado p/Rec. Futuro"         
+#ENDIF
+oSection3:Cell("VL_ORIGI"		):SetBlock( { || If(lBxFut, aDados3[VL_ORIG],) })
+oSection3:Cell("VL_PAGAR"		):SetBlock( { || If(lBxFut, aDados3[VL_PAG],If(lImpDev,nApagVenc,aDados3[VL_PAG])) })
+oSection3:Cell("VL_RECEB"		):SetBlock( { || If(lBxFut, aDados3[VL_REC],If(lImpDev,nArecVenc,nSaldo)) })
+oSection3:Cell("VL_DISPO"		):SetBlock( { || If(lBxFut, aDados3[VL_DIS],nDispon) })
+oSection3:Cell("TOTAL"):Disable()
+
+cNumMoeda += CVALTOCHAR(mv_par02)
+If mv_par02 == 1
+	oSection3:Cell("M2_MOEDA1"):Disable()
+Else
+	oSection3:Cell("M2_MOEDA1"):SetBlock({|| SM2->(&cNumMoeda) })
+EndIf
+
+if mv_par03 == 2 // Imprime Por Filial ou Empresa
+
+	// Contas a receber
+	dbSelectArea("SE1")
+	cArqSE1 := SubStr(criatrab("",.f.),1,7)+"A"
+	IndRegua("SE1",cArqSE1,"DTOS(E1_VENCREA)+E1_NOMCLI+E1_PREFIXO+E1_NUM+E1_PARCELA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE1 := RetIndex("SE1") + 1
+	#IFNDEF TOP
+		SE1->(dbSetIndex(cArqSE1+OrdBagExt()))
+	#ENDIF
+	dbSetOrder( nIndexSE1 ) 
+	
+	// Contas a pagar
+	dbSelectArea("SE2")
+	cArqSE2 := SubStr(criatrab("",.f.),1,7)+"B"
+	IndRegua("SE2",cArqSE2,"DTOS(E2_VENCREA)+E2_NOMFOR+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE2 := RetIndex("SE2") + 1
+	#IFNDEF TOP
+		SE2->(dbSetIndex(cArqSE2+OrdBagEXT()))
+	#ENDIF
+	dbSetOrder( nIndexSE2 )
+		
+	// Movimentacao bancaria
+	dbSelectArea("SE5")
+	cArqSE5 := SubStr(criatrab("",.f.),1,7)+"C"
+	IndRegua("SE5",cArqSE5,"DTOS(E5_DATA)+E5_BANCO+E5_AGENCIA+E5_CONTA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE5 := RetIndex("SE5") + 1
+	#IFNDEF TOP
+		SE5->(dbSetIndex(cArqSE5+OrdBagEXt()))
+	#ENDIF
+
+	//Contas Correntes
+	If !Empty(xFilial("SA6"))
+		dbSelectArea("SA6")
+		cArqSA6 := CriaTrab(,.F.)
+		IndRegua("SA6",cArqSA6,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+		nIndSA6 := RetIndex("SA6") + 1
+		#IFNDEF TOP
+			dbSetIndex(cArqSA6+OrdBagExT())
+		#ENDIF
+		dbSetOrder(nIndSA6)
+	Endif
+
+	// Saldo Bancario
+	dbSelectArea("SE8")
+	cArqSE8 := CriaTrab(,.F.)
+	IndRegua("SE8",cArqSE8,"E8_BANCO+E8_AGENCIA+E8_CONTA+DTOS(E8_DTSALAT)",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndSE8 := RetIndex("SE8") + 1
+	#IFNDEF TOP
+		dbSetIndex(cArqSE8+OrdBagExT())
+	#ENDIF
+	dbSetOrder(nIndSE8)
+
+	// Aplicacoes e emprestimos
+	dbSelectArea("SEG")
+	cArqSEG := SubStr(criatrab("",.f.),1,7)+"D"
+	IndRegua("SEG",cArqSEG,"DTOS(EG_DATARES)+EG_BANCO+EG_AGENCIA+EG_CONTA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	SEG->(dbCommit())
+	nIndexSEG := RetIndex("SEG") + 1
+	#IFNDEF TOP
+		SEG->(dbSetIndex(cArqSEG+OrdBagEXT()))
+	#ENDIF
+	// Aplicacoes e emprestimos
+	dbCommit()
+	dbSelectArea("SEH")
+	cArqSEH := criatrab("",.f.)
+	IndRegua("SEH",cArqSEH,"EH_STATUS+EH_APLEMP",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	SEH->(dbCommit())
+	nIndexSEH := RetIndex("SEH") + 1
+	#IFNDEF TOP
+		SEH->(dbSetIndex(cArqSEH+OrdBagExt()))
+	#ENDIF
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Cria indice condicional temporario para analise das comissoes ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if mv_par07 == 1		// Analisa comissoes == Sim
+
+	If Empty(cArqSE3)
+
+		dbSelectArea("SE3")
+		cArqSE3 := SubStr(criatrab("",.f.),1,7)+"E"
+		cChave := "DTOS(E3_DATA)"
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Condicao 1 - Somente filial 			  ³
+		//³Condicao 2 - Todas filias (Empresa)	  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		#IFDEF TOP
+			if mv_par03 == 1
+				// Nao Alterar o ctod(01/01/80)
+				cCond := 'DTOS(E3_DATA)<="'+Dtos(ctod("01/01/80","ddmmyy"))+'".AND.E3_FILIAL=="'+xFilial("SE3")+'"'
+			else
+				cCond := 'DTOS(E3_DATA)<="'+Dtos(ctod("01/01/80","ddmmyy"))+'"'
+			endif
+		#ELSE
+			If mv_par03 == 1
+				cCond := "EMPTY(E3_DATA) .and. E3_FILIAL == xfilial('SE3')"
+			Else
+				cCond := "EMPTY(E3_DATA)"
+			Endif
+		#ENDIF
+		
+		IndRegua("SE3",cArqSE3,cChave,,cCond,OemToAnsi(STR0008))  //"Selecionando Registros..."
+		dbSelectArea("SE3")
+		nIndexSE3		:= RetIndex("SE3") + 1
+		#IFNDEF TOP
+			SE3->(dbSetIndex(cArqSE3+OrdBagExt()))
+		#ENDIF
+		dbSetOrder(nIndexSE3)
+		SE3->(DbGoTop())
+	Else
+		dbSelectArea("SE3")
+		nIndexSE3		:= RetIndex("SE3") + 1
+		#IFNDEF TOP
+			SE3->(dbSetIndex(cArqSE3+OrdBagExt()))
+		#ENDIF
+		dbSetOrder( nIndexSE3 )
+	Endif
+Endif
+
+cTitulo += " em "+GetMV("MV_MOEDA"+AllTrim(Str(mv_par02,2)))
+dDataAte := dDataBase+mv_par01
+
+oReport:SetTitle(cTitulo)
+
+IF mv_par02 != 1
+	cSuf := AllTrim(Str(mv_par02,2))
+	cabec1 := OemToAnsi("Data Ref Vencto Ori  Prf Numero    PC Tipo Dt Emiss Cli/For               Nome Cliente/Fornecedor     Historico                  Valor Original          a Receber            a Pagar          Disponivel         Taxa do Dia    Observacoes")
+	dbSelectArea("SM2")
+	dbSeek( dDataBase )
+EndIF
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Imprime disponibilidade Bancaria									  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+dbSelectArea("SA6")
+If ( MV_PAR03 == 1 )
+	dbSeek(cFilial)
+Else
+	dbGotop()
+EndIf
+cSuf := AllTrim(Str(mv_par02,2,0))
+
+aFill(aDados1,nil)
+aFill(aDados2,nil)
+oSection1:Init()
+oSection2:Init()
+
+While ! SA6->(Eof()) .and. If(MV_PAR03==1,SA6->A6_FILIAL == cFilial,.T.)
+	
+	IF SA6->A6_FLUXCAI == "N"
+		SA6->(dbSkip())
+		Loop
+	Endif
+	nRegSa6 := RecNo()
+	If lFirst
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Verifica se houve movimenta‡„o bancaria no dia da emissao do fluxo³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dbSelectArea("SE5")
+		// 1-Verifica filial
+		If mv_par03 == 1			
+			cCondSE5 := "!EOF() .and. E5_FILIAL == xFilial('SE5')"
+		Else
+			cCondSE5 := "!EOF()"
+		Endif
+		
+		If mv_par03 == 1  // 1-Verifica Filial
+			dbSetOrder(1)
+			dbSeek(cFilial+DTOS(dDataBase),.T.)
+		Else
+			dbSetOrder(nIndexSE5)
+			dbSeek(DTOS(dDataBase),.T.)
+		Endif
+		
+		While &cCondSE5
+			If mv_par14 == 1
+			   If E5_DATA > dDataAte
+			      Exit
+			   EndIf			
+			Else
+			   If E5_DATA > dDataBase
+			      Exit
+			   EndIf						
+			Endif   		
+			
+			IF mv_par03 == 1 .and. E5_FILIAL != cFilial
+				Exit
+			EndIF
+			
+			IF E5_SITUACA == "C" .or. E5_TIPODOC $ "JRşMTşDCşBAşCMşJ2şM2şD2şC2şV2şCXşCPüTL"
+				dbSkip( )
+				Loop
+			EndIf
+
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//³ Verifica se existe baixas estornadas           ³
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			If TemBxCanc(E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_CLIFOR+E5_LOJA+E5_SEQ)
+				dbskip()
+				loop
+			EndIf
+			nMoedaTit := BuscaMoeda()
+        		
+			If cPaisLoc	# "BRA".And.!Empty(SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA)
+				SA6->(DbSetOrder(1))
+				SA6->(DbSeek(xFilial()+SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA))
+				nMoedaBco	:=	Max(SA6->A6_MOEDA,1)
+			Else
+				nMoedaBco	:=	1
+			Endif
+
+			If mv_par12 = 2
+				If nMoedaBco <> nMoeda   
+					SE5->(dbSkip())
+					Loop
+				EndIf
+			EndIf
+			
+			IF E5_TIPODOC == "AP"  .And. E5_RECPAG = "P"     //Aplicacoes
+				nTotAplic += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosA,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosA,E5_BANCO)
+					AADD(aAplic,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aAplic[nEl][2] += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "AP" .And. E5_RECPAG = "R"      //Estorno de Aplicacoes
+				nTotAplic -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosA,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosA,E5_BANCO)
+					AADD(aAplic,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aAplic[nEl][2] -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "RF" .And. E5_RECPAG = "R"  //Resgates
+				nTotResg += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosR,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosR,E5_BANCO)
+					AADD(aResgate,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aResgate[nEl][2]+=xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "RF" .And. E5_RECPAG = "P"  //Estorno de Resgates
+				nTotResg -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosR,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosR,E5_BANCO)
+					AADD(aResgate,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aResgate[nEl][2]-=xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf	
+			ElseIf E5_TIPODOC == "EP" .And. E5_RECPAG=="R" // Emprestimo
+				nRecHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "EP" .And. E5_RECPAG=="P" // Estorno de Emprestimo
+				nRecHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "PE" .And. E5_RECPAG=="P" // Pagamento de emprestimo
+				nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "PE" .And. E5_RECPAG=="R" // Estorno de pagamento de emprestimo
+				nPagHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "RA" .And. E5_RECPAG=="R" .And. E5_DATA <> dDataBase  // Pagamento Antecipado
+				nPagHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1))												 									 
+			ElseIf E5_RECPAG == "R" .And. ! E5_TIPODOC $ "EP#PE#AP#RF"
+				// Movimento a receber que nao seja emprestimo nem pagto de emprestimo
+				nRecHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_RECPAG == "P" .And. ! E5_TIPODOC $ "EP#PE#AP#RF"
+				If lLibCheq
+					// Pesquisa cheque pendentes de liberacao
+					SEF->(DbSetOrder(3))									 
+					If SEF->(MsSeek(xFilial("SEF")+SE5->(E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_NUMCHEQ+E5_SEQ))) .And.;
+						SEF->EF_LIBER $ " N"
+						nChqPend += SEF->EF_VALOR
+					Else
+						// Movimento a pagar que nao seja emprestimo nem pagto de emprestimo
+						nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+										 xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1))	 
+					Endif	
+				Else
+					// Movimento a pagar que nao seja emprestimo nem pagto de emprestimo
+					nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1))	 
+				Endif	
+			EndIf
+			
+			dbSkip()
+			
+		EndDo
+
+		IF (nPagHoje+nRecHoje+nTotAplic+nTotResg+nChqPend) != 0
+			aDados1[DESCRICAO] := STR0010  //"Movimentacao na data ate a hora da emissao"
+			nTotEntradas := nTotResg + nRecHoje
+			nTotSaidas	 := nTotAplic + nPagHoje + nChqPend
+			oSection1:PrintLine()
+			aFill(aDados1,nil)
+
+			aDados1[DESCRICAO] := STR0011 + Replicate(".",109)   //"Aplicacoes "
+			aDados1[PAGAR] := If(mv_par02 == 1,nTotAplic,nTotAplic / &('SM2->M2_MOEDA'+cSuf)) 
+		   	oSection1:PrintLine()
+			aFill(aDados1,nil)
+
+			IF nTotAplic>0
+				For w := 1 To Len(aBancosA)
+					aDados1[DESCRICAO] := PadR(Space(4) + aAplic[w][1] , 9)
+					dbSelectArea("SA6")
+					If ( xFilial("SA6") == Space(nTamFilial) )
+						dbSeek(cFilial+aAplic[w][1])
+					Else
+						dbSeek(aAplic[w,3]+aAplic[w][1])
+					EndIf
+
+					aDados1[DESCRICAO]	+= AllTrim(A6_NREDUZ)+Replicate(".",90-Len(AllTrim(A6_NREDUZ)))
+					aDados1[ORIG] 		:=  IIF(mv_par02==1,aAplic[w][2],aAplic[w][2]/&('SM2->M2_MOEDA'+cSuf))	
+					oSection1:PrintLine()
+					aFill(aDados1,nil)
+				Next w
+			EndIF
+
+			aDados1[DESCRICAO] := STR0012 + Replicate(".",111)  //  "Resgates "
+			aDados1[RECEB] := IIF(mv_par02==1,nTotResg,nTotResg/&('SM2->M2_MOEDA'+cSuf))	 
+			oSection1:PrintLine()
+			aFill(aDados1,nil)
+				
+			IF nTotResg>0
+				For w:=1 To Len(aBancosR)
+
+					aDados1[DESCRICAO] := Space(4) + aResgate[w][1]
+					dbSelectArea("SA6")
+					If ( xFilial("SA6") == Space(nTamFilial) )
+						dbSeek(cFilial+aResgate[w][1])
+					Else
+						dbSeek(aResgate[w,3]+aResgate[w][1])
+					EndIf
+
+					aDados1[DESCRICAO] := sPACE(9) + AllTrim(A6_NREDUZ) + Replicate(".",90-Len(AllTrim(A6_NREDUZ)))
+					aDados1[ORIG] := IIF(mv_par02==1,aResgate[w][2],aResgate[w][2]/&('SM2->M2_MOEDA'+cSuf))  
+					oSection1:PrintLine()
+					aFill(aDados1,nil)
+				Next w
+			EndIF
+
+			aDados1[DESCRICAO] := STR0013 + Replicate(".",106)  //"Outras Saidas "
+			aDados1[PAGAR] := IIF(mv_par02==1,nPagHoje,nPagHoje/&('SM2->M2_MOEDA'+cSuf))
+			oSection1:PrintLine()
+			aFill(aDados1,nil)
+
+			If lLibCheq
+				aDados1[DESCRICAO] := STR0028+Replicate(".",90) // "Cheques pendentes de liberacao"
+				aDados1[PAGAR] := If(mv_par02==1,nChqPend,nChqPend/&('SM2->M2_MOEDA'+cSuf))
+				oSection1:PrintLine()
+				aFill(aDados1,nil)
+			Endif	
+
+			aDados1[DESCRICAO] := STR0014 + Replicate(".",104)  //"Outras Entradas "
+			aDados1[RECEB] := IIF(mv_par02==1,nRecHoje,If(SEH->EH_MOEDA > 1,nRecHoje,nRecHoje/&('SM2->M2_MOEDA'+cSuf)))  
+			oSection1:PrintLine()
+			aFill(aDados1,nil)
+	
+			oReport:SkipLine()
+			aDados1[DESCRICAO] := STR0015 + Replicate(".",90)  //"Totais ate a hora da emissao "
+			aDados1[PAGAR] := If(mv_par02==1,nTotSaidas,If(SEH->EH_MOEDA > 1,nTotSaidas,nTotSaidas/&('SM2->M2_MOEDA'+cSuf)))	
+			aDados1[RECEB] := If(mv_par02==1,nTotEntradas,If(SEH->EH_MOEDA > 1,nTotEntradas,nTotEntradas/&('SM2->M2_MOEDA'+cSuf)))  
+			oSection1:PrintLine()
+			aFill(aDados1,nil)
+				
+			oReport:ThinLine()
+			nPagHoje := 0
+			nRecHoje := 0
+			nTotAplic:= 0 
+			nTotResg := 0
+		EndIF
+			
+	EndIF
+
+	dbSelectArea("SA6")
+	dbGoTo(nRegSa6)
+	dbSelectArea("SE8")
+	dbSetOrder( nIndSE8 )
+	If !(dbSeek(If(MV_PAR03==1,xFilial(),"")+SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON+DtoS(dDataBase),.t.))
+		dbSkip( -1 )
+		dDtSE8  := SE8->E8_DTSALAT
+		lSldSE8 := .F. 
+		nRecSE8 := SE8->(RECNO())
+
+		While (  !Bof() .And. If(MV_PAR03==1,xFilial()==SE8->E8_FILIAL,.T.) .And.;
+						SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON == ;
+						SE8->E8_BANCO+SE8->E8_AGENCIA+SE8->E8_CONTA .And.;
+						SE8->E8_DTSALAT == dDtSE8 )
+			nRecSE8 := SE8->(RECNO())
+			dbSkip(-1)	
+			lSldSE8 := .T.
+		EndDo
+		
+		If ( lSldSE8 )
+			If SE8->(Bof())
+				dbGoTo(nRecSE8)
+			Else
+				dbSkip()
+			Endif
+		EndIf
+	EndIf
+	
+	nValor := 0
+	
+	While ( !Eof() .And. If(mv_par03==1,xFilial("SE8")==SE8->E8_FILIAL,.T.) .And.;
+			SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON == ;
+		  	SE8->E8_BANCO+SE8->E8_AGENCIA+SE8->E8_CONTA .And.;
+		   SE8->E8_DTSALAT <= dDataBase)
+			If mv_par16 == 1			//Normal
+				nValor += xMoeda(SE8->E8_SALATUA,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+			ElseIf mv_par16 == 2   //Conciliado
+				nValor += xMoeda(SE8->E8_SALRECO,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+			ElseIf mv_par16 == 3   //Nao Conciliado
+				nValor += xMoeda(SE8->E8_SALATUA-SE8->E8_SALRECO,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+			EndIf
+			dbSkip()
+	Enddo
+	
+	If mv_par15 == 1 // Se considera limite de credito
+		nLimCred := xMoeda(SA6->A6_LIMCRED,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+	Endif	
+	
+	//valida a impressao de banco sem movimentacao, de acordo com o resultado do ponto de entrada FA140MVB	
+	If !(lSldZera .And. nValor == 0) .And. (Iif(lMovBco,nValor+nLimCred != 0,.T.))	
+		If lFirst
+			aDados2[DESCRICAO] := STR0016  //"Disponibilidade imediata"
+			oSection2:PrintLine()
+			aFill(aDados2,nil)
+			lFirst := .f.
+		EndIf
+	
+		aDados2[DESCRICAO] := SA6->A6_NREDUZ + "  (" + SA6->A6_COD + ")" + ;
+										Space(6)+"  AG: " + SA6->A6_AGENCIA + "  C/C: " +;
+										SA6->A6_NUMCON
+		aDados2[DISPONIVEL] := nValor
+		oSection2:PrintLine()
+		aFill(aDados2,nil)
+	
+		If mv_par15 == 1
+			aDados2[DESCRICAO] := STR0027 + Replicate(".",134)  //"Limite de Credito: "
+			aDados2[DISPONIVEL] := nLimCred
+			oSection2:PrintLine()
+			aFill(aDados2,nil)
+		Endif	
+				
+	Endif
+	nDispon += (nValor+nLimCred)
+	
+	
+	dbSelectArea("SA6")
+	// Se emitido por empresa e o SA6 for Exclusivo, posiciono na proxima conta diferenciada
+	// ja que a rotina ja aglutinou os saldos de contas identicas (Bco/Age/Cta) que existam 
+	// nas diferentes filiais
+	If mv_par03 = 2 .and. !Empty(xFilial("SA6"))
+		// Vai para proximo bco+agencia+conta, caso a data do saldo seja maior que a data do saldo
+		// atual e o bco+agencia+conta sejam os mesmos do registro atual do SE8.
+		SA6->(MsSeek(IncLast(SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON),.T.))
+	Else
+		dbGoTo(nRegSa6)
+		SA6->(dbSkip())
+	Endif
+	
+	lFirst := .f.
+		
+EndDo
+
+IF (nRegSa6 != 0)
+	oReport:SkipLine()
+	aDados2[DESCRICAO] := STR0017 + Replicate(".",135)  //"Total Disponivel "
+	aDados2[DISPONIVEL] := nDispon
+	oSection2:PrintLine()
+	aFill(aDados2,nil)
+	
+EndIF
+
+IF !lFirst
+	oReport:SkipLine()
+EndIf
+
+oSection2:Finish()
+oSection1:Finish()
+
+
+aFill(aDados3,nil)
+oSection3:Init()
+
+lFirst := .T.
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Titulos vencidos - a receber e a pagar						 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If mv_par06 == 1	 // Considera titulos em atraso
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Soma Contas a pagar vencida pela data de Vencimento			  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+#IFDEF TOP
+	IF TcSrvType() != "AS/400" 
+		cOrdSE2 := SqlOrder(SE2->(Indexkey()))
+		cRecPagAnt := FormatIn( MVPAGANT, "/" )
+		aStru := SE2->(DbStruct())
+		cQuery := ""
+		aEval(aStru,{|x| cQuery += ","+AllTrim(x[1])})
+		cQuery := "SELECT  " +SubStr(cQuery,2) + ", R_E_C_N_O_ RECNOSE2 "
+		cQuery += " FROM " + RetSqlName("SE2")
+		If mv_par03 == 1
+			cQuery += " WHERE E2_FILIAL = '" + xFilial("SE2") + "'"
+		Else
+			cQuery += " WHERE E2_FILIAL between ' ' AND 'zz'"
+		Endif
+		cQuery += " AND E2_PREFIXO between '" + mv_par09 + "' AND '"+mv_par10 + "'"
+		cQuery += " AND E2_MOEDA IN " + StrTran(FormatIn(AllTrim(mv_par08),,1),"'","")
+		cQuery += " AND E2_VENCREA <= '" + Dtos(dDataBase-1) +"'"
+		If cPaisLoc=="BRA"
+			cQuery += " AND E2_TIPO NOT IN " + cRecPagAnt
+		EndIf
+		If mv_par11 == 2
+			cQuery += " AND E2_SALDO > 0 "
+		Endif
+		If mv_par12 == 2
+			cQuery += " AND E2_MOEDA = " + Str(nMoeda,2)
+		Endif
+		cQuery += " AND E2_FLUXO <> 'N'"
+		//Considerar ou nao titulos com emissao posterior a database
+		If mv_par14 == 2
+			cQuery += " AND E2_EMIS1 <= '"+Dtos(dDataBase) +"'"
+		Endif
+		cQuery += " AND D_E_L_E_T_ = ' '"
+		cQuery += " ORDER BY " + cOrdSE2
+		
+		cQuery := ChangeQuery(cQuery)
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"E2VENC",.T.,.T.)
+		aEval(aStru, {|e| If(e[2]!= "C", TCSetField("E2VENC", e[1], e[2],e[3],e[4]),Nil)})
+
+		oReport:SetMeter(RecCount())
+
+		While ! E2VENC->(EOF())
+			oReport:IncMeter()
+			SE2->(MsGoto(E2VENC->RECNOSE2))
+			If mv_par11 == 1
+				nSaldo:=SaldoTit(E2VENC->E2_PREFIXO,E2VENC->E2_NUM,E2VENC->E2_PARCELA,E2VENC->E2_TIPO,E2VENC->E2_NATUREZA,"P",E2VENC->E2_FORNECE,mv_par02,E2VENC->E2_VENCREA,dDataBase,E2VENC->E2_LOJA,,If(cPaisLoc=="BRA",E2VENC->E2_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(E2VENC->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo:=xMoeda((E2VENC->E2_SALDO+E2VENC->E2_SDACRES-E2VENC->E2_SDDECRE),E2VENC->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",E2VENC->E2_TXMOEDA,0))
+			EndIf
+
+			If cPaisLoc<>"BRA"
+		    	If E2VENC->E2_TIPO $ MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+					nApagVenc -= nSaldo
+				Else
+					nApagVenc += nSaldo
+				Endif
+     		Else
+            
+				If E2VENC->E2_TIPO $ MVABATIM .or. E2VENC->E2_TIPO $ MV_CPNEG 
+					nApagVenc -= nSaldo
+				Else
+					nApagVenc += nSaldo
+				Endif
+			EndIf
+			
+			E2VENC->(dbSkip())
+		Enddo
+		E2VENC->(dbCloseArea())
+		dbSelectArea("SE2")
+	Else
+#ENDIF
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Soma Contas a pagar vencida pela data de Vencimento			  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dDataVenc := dDataBase-1
+		
+		dbSelectArea("SE2")
+		If mv_par03 == 1
+			If lFirst
+				RetIndex("SE2")
+			EndIf
+			dbSelectArea("SE2")
+			SE2->(dbSetOrder(3))
+			SE2->(dbSeek(cFilial+DTOS(CTOD("01/01/60","ddmmyy")) ,.t.))
+		Else
+			dbGoTop()
+		EndIf
+		
+		While ! SE2->(EOF()) .And. SE2->E2_VENCREA <= dDataVenc
+			
+			IF mv_par03 == 1 .and. SE2->E2_FILIAL != cFilial
+				Exit
+			EndIf
+			
+			If SE2->E2_TIPO $ MVPAGANT .And. cPaisLoc=="BRA"
+				SE2->(dbSkip())
+				Loop
+			EndIf
+			
+			If ! ( AllTrim(Str(SE2->E2_MOEDA,2)) $ mv_par08 )
+				dbSkip()
+				Loop
+			EndIf
+			
+			If SE2->E2_SALDO == 0 .and. IIf(mv_par11==1,SE2->E2_BAIXA <= dDataBase,.T.)
+				SE2->(dbSkip())
+				Loop
+			EndIf
+			
+			IF SE2->E2_PREFIXO < mv_par09 .or. SE2->E2_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+				SE2->(dbSkip())
+				Loop
+			EndIF
+			
+			If SE2->E2_FLUXO == "N" .or. (SE2->E2_EMIS1 > dDataBase .and. mv_par14 == 2)
+				dbSkip()
+				Loop
+			EndIf
+			
+	        If mv_par12 = 2
+	           If SE2->E2_MOEDA != nMoeda   
+	              SE2->(dbSkip())
+	              Loop
+	           EndIf
+	        EndIf
+		
+			If mv_par11 == 1
+				nSaldo:=SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZA,"P",SE2->E2_FORNECE,mv_par02,SE2->E2_VENCREA,dDataBase,SE2->E2_LOJA,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(SE2->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo:=xMoeda((SE2->E2_SALDO+SE2->E2_SDACRES-SE2->E2_SDDECRE),SE2->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+			EndIf
+			
+			If SE2->E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+				nApagVenc -= nSaldo
+			Else
+				nApagVenc += nSaldo
+			EndIf
+			SE2->(dbSkip())
+		End
+#IFDEF TOP
+	Endif
+#ENDIF
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Contas a receber vencida pela data de Vencimento		³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+#IFDEF TOP
+	IF TcSrvType() != "AS/400" 
+		cRecPagAnt := FormatIn( MVRECANT + "/" + MVIRF, "/" )
+		cOrdSE1 := SqlOrder(SE1->(Indexkey()))
+		aStru := SE1->(DbStruct())
+		cQuery := ""
+		aEval(aStru,{|x| cQuery += ","+AllTrim(x[1])})
+		cQuery := "SELECT  " +SubStr(cQuery,2) + ", R_E_C_N_O_ RECNOSE1 "
+		cQuery += " FROM " + RetSqlName("SE1")
+		If mv_par03 == 1
+			cQuery += " WHERE E1_FILIAL = '" + xFilial("SE1") + "'"
+		Else
+			cQuery += " WHERE E1_FILIAL between ' ' AND 'zz'"
+		Endif
+		cQuery += " AND E1_PREFIXO between '" + mv_par09 + "' AND '"+mv_par10 + "'"
+		cQuery += " AND E1_MOEDA IN " + StrTran(FormatIn(AllTrim(mv_par08),,1),"'","")
+		cQuery += " AND (E1_VENCREA <= '" + Dtos(dDataBase-1) +"')"
+		//cQuery += " OR (E1_MOVIMEN <> ' ' AND E1_MOVIMEN <= '" + Dtos(dDataBase-1) + "'))"
+		If  cPaisLoc=="BRA"
+			cQuery += " AND E1_TIPO NOT IN " + cRecPagAnt
+		EndIf
+		cQuery += " AND E1_SITUACA NOT IN ('2','7')"
+		If mv_par11 == 2
+			cQuery += " AND E1_SALDO > 0 "
+		Endif
+		If mv_par12 == 2
+			cQuery += " AND E1_MOEDA = " + Str(nMoeda,2)
+		Endif
+		cQuery += " AND E1_FLUXO <> 'N'"
+		//Considerar ou nao titulos com emissao posterior a database
+		If mv_par14 == 2
+			cQuery += " AND E1_EMISSAO <= '"+Dtos(dDataBase) +"'"
+		Endif
+		cQuery += " AND D_E_L_E_T_ = ' '"
+		cQuery += " ORDER BY " + cOrdSE1
+
+		cQuery := ChangeQuery(cQuery)
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"E1VENC",.T.,.T.)
+		aEval(aStru, {|e| If(e[2]!= "C", TCSetField("E1VENC", e[1], e[2],e[3],e[4]),Nil)})
+
+		oReport:SetMeter(RecCount())
+
+		While ! E1VENC->(EOF())
+			oReport:IncMeter()
+			SE1->(MsGoto(E1VENC->RECNOSE1))
+			If mv_par11 == 1
+				nSaldo := SaldoTit(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,E1VENC->E1_TIPO,E1VENC->E1_NATUREZA,"R",E1VENC->E1_CLIENTE,mv_par02,E1VENC->E1_VENCREA,dDataBase,E1VENC->E1_LOJA,,If(cPaisLoc=="BRA",E1VENC->E1_TXMOEDA,0), mv_par17)
+                
+ 				IF GetMv("MV_BR10925")== "1" .and. E1VENC->E1_TIPO $ "PIS|COF|CSL" .and. E1VENC->E1_BAIXA <= dDatabase // Quando o parametro MV_BR10925 estiver igual a 1 - Baixa
+					nSaldo -= E1VENC->E1_VALOR
+				Endif
+								
+				IF E1VENC->E1_TIPO $ MVABATIM .AND. E1VENC->E1_BAIXA <= dDatabase  //Quando se trata de impostos (abatimento) o saldotit não funciona corretamente por nao tratar tais movimentos de baixa.
+					nSaldo -= E1VENC->E1_VALOR
+				Endif
+
+				IF E1VENC->(E1_PIS+E1_CSLL+E1_COFINS) > 0 .AND. mv_par13 == 1 // Reteve impostos
+					nSaldo -= SomaAbat(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,"R",mv_par02,,E1VENC->E1_CLIENTE,E1VENC->E1_LOJA,,E1VENC->E1_EMISSAO)
+				Endif
+
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(E1VENC->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo   := xMoeda((E1VENC->E1_SALDO+E1VENC->E1_SDACRES-E1VENC->E1_SDDECRE),E1VENC->E1_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",E1VENC->E1_TXMOEDA,0))
+
+				IF E1VENC->(E1_PIS+E1_CSLL+E1_COFINS) > 0 .AND. mv_par13 == 1 // Reteve impostos
+					nSaldo -= SomaAbat(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,"R",mv_par02,,E1VENC->E1_CLIENTE,E1VENC->E1_LOJA,,E1VENC->E1_EMISSAO)
+				Endif
+			Endif
+
+			// Se titulo do Template GEM
+			If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+				If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+					SE1->E1_VALOR == nSaldo //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+					nSaldo += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+				EndIf
+			EndIf
+
+			If E1VENC->E1_SALDO > 0
+				If cPaisLoc<>"BRA"
+					IF Alltrim(E1VENC->E1_TIPO) $  MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+						nArecVenc -= nSaldo
+					Else
+						nArecVenc += nSaldo
+					EndIf
+				Else
+					IF E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+						nArecVenc -= nSaldo
+					Else
+						nArecVenc += nSaldo
+					EndIf
+				EndIf
+			Else    
+				If cPaisLoc<>"BRA"
+					IF Alltrim(E1VENC->E1_TIPO) $  MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+						nAcumRc -= nSaldo
+					Else
+						nAcumRc += nSaldo
+					EndIf
+				Else
+					IF E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+						nAcumRc -= nSaldo
+					Else
+						nAcumRc += nSaldo
+					EndIf
+				EndIf			
+	
+			Endif          
+			
+			//Quando o parametro mv_par19 = 2 e o titulo tiver estorno ele nao deve ser exibido no relatorio.
+			If mv_par19 == 1 .or. (mv_par19 == 2 .and. ListaES(xFilial("SE1")+SE1->E1_PREFIXO+SE1->E1_NUM+SE1->E1_PARCELA)) 
+			  //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			  //³ Impressao dos titulos baixados p/ recebimento futuro.		    ³
+			  //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			  If nSaldo <> 0  .And. E1VENC->E1_SALDO == 0
+			     If !lImpFut
+				    oReport:ThinLine()
+				    oReport:PrintText(STR0045) //"Títulos Baixados com Previsão de Movimentação Bancária Futura"
+					 lImpFut := .T.
+				  EndIf
+			  	  If E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+				    nDispon  -= nSaldo
+				    nTotFutR -= nSaldo
+				  Else	
+				    nDispon  += nSaldo
+					 nTotFutR += nSaldo
+				  EndIf
+				 oSection3:PrintLine()
+           Endif         
+			EndIf  
+			
+			E1VENC->(dbSkip())
+		Enddo
+      oReport:SkipLine()
+		oReport:ThinLine()
+		oSection3:Finish()
+		E1VENC->(dbCloseArea())
+		dbSelectArea("SE1")
+	Else	
+#ENDIF
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Soma Contas a receber vencida pela data de Vencimento			  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dbSelectArea("SE1")
+		If mv_par03 == 1
+			If lFirst
+				RetIndex("SE1")
+			EndIf
+			dbSelectArea("SE1")
+			SE1->(dbSetOrder(7))
+			SE1->(dbseek(cFilial+DTOS(CTOD("01/01/60","ddmmyy")),.T.))
+		Else
+			dbGoTop()
+		EndIf
+		
+		While ! SE1->(EOF()) .And. (SE1->E1_VENCREA <= dDataBase-1) .Or. (!Empty(SE1->E1_MOVIMEN) .And. SE1->E1_MOVIMEN <= dDataBase-1)
+			
+			IF mv_par03 == 1 .and. cFilial != SE1->E1_FILIAL
+				Exit
+			EndIf
+			
+			If SE1->E1_TIPO $ MVRECANT .And. cPaisLoc=="BRA"
+				SE1->(dbSkip())
+				Loop
+			EndIf
+			
+			IF SE1->E1_PREFIXO < mv_par09 .or. SE1->E1_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+				SE1->(dbSkip())
+				Loop
+			EndIF
+			
+			If ! ( AllTrim(Str(SE1->E1_MOEDA,2)) $ mv_par08 )
+				dbSkip( )
+				Loop
+			EndIf
+			
+			If SE1->E1_FLUXO == "N" .or. (SE1->E1_EMISSAO > dDatabase .and. mv_par14 == 2)
+				dbSkip()
+				Loop
+			EndIf
+
+	        If mv_par12 = 2
+	           If SE1->E1_MOEDA != nMoeda   
+	              SE1->(dbSkip())
+	              Loop
+	           EndIf
+	        EndIf
+			
+			If mv_par11 == 1
+				nSaldo := SaldoTit(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_NATUREZA,"R",SE1->E1_CLIENTE,mv_par02,SE1->E1_VENCREA,dDataBase,SE1->E1_LOJA,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(SE1->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo   := xMoeda((SE1->E1_SALDO+SE1->E1_SDACRES-SE1->E1_SDDECRE),SE1->E1_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0))
+			End
+
+			// Se titulo do Template GEM
+			If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+				If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+					SE1->E1_VALOR == nSaldup //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+					nSaldo += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+				EndIf
+			EndIf
+
+			If SE1->E1_SALDO > 0
+				IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nArecVenc -= nSaldo
+				Else
+					nArecVenc += nSaldo
+				EndIf
+			Else    
+				IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nAcumRc -= nSaldo
+				Else
+					nAcumRc += nSaldo
+				EndIf
+			Endif          
+			
+			//Quando o parametro mv_par19 = 2 e o titulo tiver estorno ele nao deve ser exibido no relatorio.
+			If mv_par19 == 1 .or. (mv_par19 == 2 .and. ListaES(xFilial("SE1")+SE1->E1_PREFIXO+SE1->E1_NUM+SE1->E1_PARCELA)) 
+			  //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			  //³ Impressao dos titulos baixados p/ recebimento futuro.		    ³
+			  //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			  If nSaldo <> 0  .And. SE1->E1_SALDO == 0
+			    If !lImpFut
+				  	oReport:ThinLine()
+					oReport:PrintText(STR0045)	//"Títulos Baixados com Previsão de Movimentação Bancária Futura"
+					lImpFut := .T.
+				 EndIf
+			  	 If SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nDispon  -= nSaldo
+				   nTotFutR -= nSaldo
+				 Else	
+					nDispon  += nSaldo
+					nTotFutR += nSaldo
+				 EndIf
+
+				 oSection3:PrintLine()
+			  EndIf			
+			Endif
+			
+			SE1->(dbSkip())
+		EndDo
+      oReport:SkipLine()
+		oReport:ThinLine()
+		oSection3:Finish()
+#IFDEF TOP
+	Endif
+#ENDIF		
+	If nArecVenc # 0 .or. nApagVenc # 0
+		nDispon += nArecVenc
+		nDispon -= nApagVenc
+		oSection3:Init()
+		lBxFut := .F.
+		lImpDev := .T.
+		HabiCel(.F.,oReport)
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+		oReport:SkipLine()
+		lBxFut := .T. 
+		lImpDev := .F.
+		oSection3:Finish()
+	Endif
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma as Comissoes. Os criterios de selecao dos registros foram³
+//³determinados no instante da criacao do indice condicional.	  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if mv_par07 == 1
+	DbSelectArea("SE3")
+	dbGoTop()
+	While !Eof() .and. SE3->E3_DATA <= dDataBase
+		nComissoes += xMoeda(SE3->E3_COMIS,1,mv_par02)
+		dbSkip()
+	End
+
+	If nComissoes # 0
+		nDispon -= nComissoes
+
+		aDados3[DESC_TOTAL] := STR0019 //"Total de Comissoes A Pagar"
+		aDados3[VL_PAG] := nComissoes
+		aDados3[VL_DIS] := nDispon
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.		
+		oSection3:Init()
+		oSection3:PrintLine()
+		osection3:Finish()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+		oReport:SkipLine()
+	Endif
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Acessa titulos iniciais												  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+nDias := (dDataAte-dDataBase)
+
+oReport:SetMeter(nDias)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Verifica Pedidos de Compra e de Venda								  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If mv_par04 == 1
+	fc020Venda( mv_par08, /*cAliasPv*/, /*aTotais*/, /*lRegua*/, mv_par02, /*aPeriodo*/, /*cFilIni*/, /*cFilFin*/ )
+Endif
+
+If mv_par05 == 1
+	fc020Compra(/*cAliasPc*/,/*aTotais*/,/*lRegua*/,mv_par02,/*aPeriodo*/,/*cFilIni*/,/*cFilFin*/, /*cPedidos*/)
+Endif
+lDataInf := .F.
+lAchouUm := .F.
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Contas a Receber pela data de Vencimento					  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+For j := 1 To nDias
+	
+	dDataVenc := dDataBase+j-1
+	
+	lAchou := .F.
+	dbSelectArea("SE1")
+	
+	If mv_par03 == 1
+		dbSetOrder(7)
+		dbseek(cFilial+DTOS(dDataVenc))
+	Else
+		dbSetOrder( nIndexSE1 )
+		dbSeek(DTOS(dDataVenc))
+	Endif
+
+	oReport:IncMeter()
+		
+	While !Eof() .And. SE1->E1_VENCREA == dDataVenc
+		
+		IF mv_par03 == 1 .and. SE1->E1_FILIAL != cFilial
+			Exit
+		EndIF
+		
+		If SE1->E1_TIPO $ MVRECANT
+			dbSkip()
+			Loop
+		Endif
+		
+		IF SE1->E1_PREFIXO < mv_par09 .or. SE1->E1_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+			SE1->(dbSkip())
+			Loop
+		EndIF
+		
+		If ! ( AllTrim(Str(SE1->E1_MOEDA,2)) $ mv_par08 )
+			dbSkip( )
+			Loop
+		EndIf
+		
+		If SE1->E1_FLUXO == "N" .or. (SE1->E1_EMISSAO > dDatabase .and. mv_par14 == 2)
+			dbSkip()
+			Loop
+		EndIf                                    
+		
+		IF ( SE1->E1_SALDO = 0 .and. IIF( mv_par11 == 1, SE1->E1_BAIXA <= dDataBase, .T. )  ) .or. SE1->E1_SITUACA $ "27"
+			dbSkip()
+			Loop
+		EndIF
+	
+		IF mv_par13 == 2 .And. SE1->E1_TIPO $ MVABATIM
+			dbSkip()
+			Loop
+		EndIf 
+        If mv_par12 = 2
+           If SE1->E1_MOEDA != nMoeda   
+              SE1->(dbSkip())
+              Loop
+           EndIf
+        EndIf               
+        
+					AAdd(aRecSE1,{SE1->E1_VENCREA,SE1->(Recno()),SE1->E1_NOMCLI})
+	SE1->(dbSkip()) 
+	EndDo
+Next j
+
+//Ordena por data e cliente respectivamente.
+aRecSE1 := aSort(aRecSE1,,,{|x,y| DTOS(x[1])+x[3]<DTOS(y[1])+y[3]})
+
+oSection3:Init()
+
+For j := 1 To nDias
+
+	dDataVenc := dDataBase+j-1                        
+
+	nPos := 0
+
+	If (nPos := aScan(aRecSe1,{|x| x[1] == dDataVenc},1)) > 0
+		While (nPos<=Len(aRecSe1)) .and. (aRecSe1[nPos][1] == dDataVenc)
+ 			SE1->(dbGoTo(aRecSe1[nPos][2])) 
+			If mv_par11 == 1
+				nSaldup := SaldoTit(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_NATUREZA,"R",SE1->E1_CLIENTE,mv_par02,SE1->E1_VENCREA,dDataBase,SE1->E1_LOJA,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0), mv_par17)
+
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(SE1->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldup  := xMoeda((SE1->E1_SALDO+SE1->E1_SDACRES-SE1->E1_SDDECRE),SE1->E1_MOEDA,mv_par02,If(lTxMoeda,SE1->E1_VENCREA,dDataBase),nDecs+1,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0))
+			EndIF
+
+			// Se titulo do Template GEM
+			If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+				If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+					SE1->E1_VALOR == nSaldup //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+					nSaldup += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+				EndIf
+			EndIf
+
+			dbSelectArea("SE1")
+		
+			If mv_par03 == 1
+				dbSetOrder(7)
+			Endif
+		
+			IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+				nDispon-=nSalDup
+			Else
+				nDispon+=nSalDup
+			EndIf
+			
+			IF !lAchou
+				dDataTrab := SE1->E1_VENCREA
+		
+			If SE1->E1_SITUACA <> "0FG"		// Situacoes que nao considera dias de retencao
+			                                                     
+				dDataVcOri := SE1->E1_VENCTO
+			                                
+				//Verifico se o proximo dia util apos o vencimento eh igual ao vencto real do titulo
+				//Se for igual e o titulo estiver em cobranca, aplico os dias de retencao do banco
+				//Se for diferente e o titulo estiver em cobranca, quer dizer que ja foram aplicados os dias de retencao
+				//logo nao aplico novamente.
+				If DtoS( DataValida( dDataVcOri ) ) == DtoS( dDataTrab )
+
+					// Posiciona no banco para obter dias de retencao
+					SA6->( dbSetOrder( 1 ) )
+					SA6->( MsSeek( xFilial("SA6") + SE1->( E1_PORTADO + E1_AGEDEP + E1_CONTA ) ) )
+					
+					// Dias de retencao do banco em que o titulo esta
+					nDiasRet := SA6->A6_RETENCA
+
+					// Calcula proxima data valida (nao feriado) adicionados os dias de retencao
+					For nX := 1 To nDiasRet                         
+						dDataTrab := DataValida( dDataTrab + 1, .T. )
+					Next
+
+				EndIf
+		                         
+			EndIf
+				aDados3[DT_VENC] := dDataTrab
+			EndIF      
+		
+			aDados3[PREFIXO] := SE1->E1_PREFIXO
+			aDados3[TITUL] := SE1->E1_NUM+(If(!EMPTY(SE1->E1_PARCELA),"-",""))+SE1->E1_PARCELA
+			aDados3[16]    := IIf(!Empty(SE1->E1_VENCORI),SE1->E1_VENCORI,SE1->E1_VENCTO)
+			aDados3[TIPO] := SE1->E1_TIPO
+			aDados3[EMISSAO] := SE1->E1_EMISSAO
+			aDados3[FORNEC] := SE1->E1_CLIENTE
+			aDados3[NOM_FORNEC] := SubStr(SE1->E1_NOMCLI,1,25)
+			aDados3[HISTORICO] := SubStr(SE1->E1_HIST,1,25)
+
+			nAbatim := 0 
+			If mv_par13 == 2
+				If mv_par14 == 1
+					dOldData := dDataBase
+					dDataBase := CTOD("31/12/40")
+				Endif
+
+				nAbatim := SomaAbat(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,"R",mv_par02,,SE1->E1_CLIENTE,SE1->E1_LOJA)
+
+				If mv_par14 == 1
+					dDataBase := dOldData
+				Endif
+
+			Endif	
+			nSalDup -= nAbatim
+			nDispon -= nAbatim
+
+			// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+			lTxMoeda := SM2->(MsSeek(dDataVenc)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+			aDados3[VL_ORIG] := xMoeda(SE1->E1_VALOR+SE1->E1_ACRESC-SE1->E1_DECRESC-nAbatim,SE1->E1_MOEDA,mv_par02,If(lTxMoeda,dDataVenc,dDataBase),,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0))
+			aDados3[VL_ORIG] -= FaDescFin("SE1",,SE1->E1_VALOR,SE1->E1_MOEDA)
+			aDados3[VL_REC] := nSalDup
+			aDados3[VL_DIS] := nDispon
+		
+			If mv_par02 != 1 .and. !lAchou
+				aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf) 
+				dDataImp:=dDataVenc
+			EndIf
+			lBxFut := .T.
+			lImpDev := .T.		
+    	  	oSection3:PrintLine()
+			aFill(aDados3,nil)
+		
+			lAchou:=.t.
+			dbSelectArea("SE1")
+			IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+				nTotTitR -= nSalDup
+			Else
+				nTotTitR += nSalDup
+			End	
+			nPos += 1
+
+		EndDo
+	EndIf
+	
+If cIpProj =="S"
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe aplica‡„o a ser resgatada no dia				³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea("SEG")
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(cFilial+Dtos(dDataVenc))
+	Else
+		dbSetOrder(nIndexSEG)
+		dbSeek(Dtos(dDataVenc))
+	Endif
+	
+	lAchou :=.f.
+	While !Eof() .And. EG_DATARES == dDataVenc
+		
+		IF mv_par03 == 1 .and. EG_FILIAL != cFilial
+			Exit
+		End
+		
+		If SEG->EG_TIPO == "EMP"
+			dbSkip( )
+			Loop
+		End
+		nDiasInt	:= EG_DATARES-EG_DATA	//Dias de Intervalo
+		nJurDiario:= EG_TAXA/nDiasInt	  //Juros Diario
+		nValJuros := EG_VALOR+((EG_VALOR*nJurDiario)/100)*nDiasInt
+		nValGanho := nValJuros-EG_VALOR
+		nValJuros -= nValGanho*EG_IMPOSTO/100 //Impostos
+		IF mv_par02 == 1
+			nDispon += nValJuros
+		Else
+			dbSelectArea("SM2")
+			dbSeek( dDataVenc )
+			nDispon += nValJuros/&('SM2->M2_MOEDA'+cSuf)
+		EndIF
+		dbSelectArea("SEG")
+
+		IF !lAchou 
+			aDados3[DESC_TOTAL] := DtoC(EG_DATARES)
+		EndIF
+	
+		aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0021 + EG_TIPO + " - " + EG_BANCO  //"Projecao de Resgate de Aplicacao "
+		aDados3[VL_ORIG] := If(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf))
+		aDados3[VL_REC] := If(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+		aDados3[VL_DIS] := nDispon
+
+		IF mv_par02!=1 .and. !lAchou
+			dbSelectArea("SM2")
+			dbSeek(dDataVenc)
+			aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf) 
+		EndIF
+			
+		lAchou:=.T.
+			
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.		
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+
+		dbSelectArea("SEG")
+		nTotTitR	+= IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+		dbSkip()
+	EndDo
+	
+	dbSelectArea("SEH")
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(xFilial("SEH")+"A")
+	Else
+		dbSetOrder(nIndexSEH)
+		dbSeek("A")
+	Endif
+
+	lAchou := .f.
+	While ( !Eof() .And.If(MV_PAR03==1,SEH->EH_FILIAL==xFilial("SEH"),.T.) .And.;
+				SEH->EH_STATUS == "A" )
+		If ( SEH->EH_APLEMP != "EMP" )
+			If ( Empty(SEH->EH_DATARES) .And. J==1 ) .Or.;
+				( SEH->EH_DATARES == dDataVenc )
+				nValJuros := SEH->EH_SALDO
+				If !SEH->EH_TIPO $ cAplCotas
+					aValAplic := Fa171Calc(	dDataVenc,,,,,,,, mv_par03 = 1)
+					nValJuros += aValAplic[5]-aValAplic[2]-aValAplic[3]-aValAplic[4]
+				Else
+					aValAplic := {0,0,0,0,0,0}
+					nAscan := Ascan(aAplicSeh, {|e|	e[1] == SEH->EH_CONTRAT .And.;
+													 		   e[2] == SEH->EH_BCOCONT .And.;
+															   e[3] == SEH->EH_AGECONT})
+					If nAscan > 0																	   
+						aValAplic :=	Fa171Calc(dDataVenc,SEH->EH_SLDCOTA,,,,SE9->E9_VLRCOTA,aAplicSeh[nAscan][6],(SEH->EH_SLDCOTA * aAplicSeh[nAscan][6]))
+					Endif	
+					nValJuros := xMoeda(aValAplic[1]-(aValAplic[2]+aValAplic[3]+aValAplic[4]),1,mv_par02)
+				Endif
+			Else
+				nValJuros := 0
+			EndIf
+			If ( nValJuros != 0 )
+				IF MV_PAR02 == 1
+					nDispon += (nValJuros)
+				Else
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek( dDataVenc )
+					nDispon += (nValJuros)/&('SM2->M2_MOEDA'+cSuf)
+				EndIf
+
+				IF !lAchou
+					aDados3[DESC_TOTAL] := DtoC(SEH->EH_DATARES)
+				EndIF
+
+				aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0021+SEH->EH_TIPO+" - "+SEH->EH_BANCO  //"Projecao de Resgate de Aplicacao "
+				aDados3[VL_ORIG] := If(MV_PAR02==1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf))
+				aDados3[VL_REC] := If(MV_PAR02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+				aDados3[VL_DIS] := nDispon
+
+				IF ( MV_PAR02 != 1 .And. !lAchou )
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek(dDataVenc)
+					aDados[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+				EndIf
+				
+				HabiCel(.F.,oReport)
+				lBxFut := .T.
+				lImpDev := .T.		
+				oSection3:PrintLine()
+				HabiCel(.T.,oReport)
+				aFill(aDados3,nil)
+			EndIf
+			lAchou:=.T.
+			nTotTitR	+= If(MV_PAR02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+
+			If dDataVenc < SEH->EH_DATA
+				dDataVenc := SEH->EH_DATA
+			EndIf
+		EndIf
+		
+		dbSelectArea("SEH")
+		dbSkip()
+	EndDo
+
+Endif
+
+	dbSelectArea("SE2")
+	If mv_par03 == 1
+		If lFirst
+			RetIndex("SE2")
+		End
+		SE2->(dbSetOrder(3))
+		SE2->(dbSeek(cFilial+DTOS(dDataVenc) ,.t.))
+	Else
+		dbSetOrder( nIndexSE2 )
+		SE2->(dbSeek(DTOS(dDataVenc)),.t.)
+	End
+	
+	lAchou := .f.
+	While !Eof() .And. E2_VENCREA == dDataVenc
+		
+		IF mv_par03 == 1 .and. E2_FILIAL != cFilial
+			Exit
+		EndIF
+		
+		If SE2->E2_SALDO == 0 .and. IIf(mv_par11==1,SE2->E2_BAIXA <= dDataBase,.t.)
+			SE2->(dbSkip())
+			Loop
+		End
+		
+        If mv_par12 = 2
+           If SE2->E2_MOEDA != nMoeda   
+              SE2->(dbSkip())
+              Loop
+           EndIf
+        EndIf
+		
+		If SE2->E2_BAIXA > dDataBase .And. mv_par11 == 1
+			nSaldup:=SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZA,"P",SE2->E2_FORNECE,mv_par02,SE2->E2_VENCREA,dDataBase,SE2->E2_LOJA,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+		Else
+			// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+			lTxMoeda := SM2->(MsSeek(SE2->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+			nSaldup:=xMoeda((SE2->E2_SALDO+SE2->E2_SDACRES-SE2->E2_SDDECRE),SE2->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+		End
+		
+		IF mv_par13 == 2 .And. SE2->E2_TIPO $ MVABATIM
+			dbSkip()
+			Loop
+		End
+		If E2_TIPO $ MVPAGANT
+			dbSkip( )
+			Loop
+		Endif
+		
+		IF SE2->E2_PREFIXO < mv_par09 .or. SE2->E2_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+			SE2->(dbSkip())
+			Loop
+		EndIF
+		
+		If ! ( AllTrim(Str(SE2->E2_MOEDA,2)) $ mv_par08 )
+			dbSkip()
+			Loop
+		End
+		
+		If SE2->E2_FLUXO == "N" .or. (SE2->E2_EMIS1 > dDataBase .and. mv_par14 == 2)
+			dbSkip()
+			Loop
+		End
+		
+		dbSelectArea("SE2")
+		If mv_par03 == 1
+			dbSetOrder(3)
+		Endif
+		
+		IF E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+			nDispon+=nSalDup
+		Else
+			nDispon-=nSalDup
+		Endif
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Verifica se existe cheque sobre titulo e busca no  ³
+		//³SEF para verificar se cheque esta liberado para    ³
+		//³imprimir ou nao o titulo.                          ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If SE2->E2_IMPCHEQ == "S" .And. lLibCheq
+			aAreaSE2 := GetArea()
+			dbSelectArea("SEF")
+			SEF->(dbSetOrder(3))      
+			SEF->(MsSeek(xFilial("SEF")+SE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO)))
+			While SEF->(!Eof()) .And. lChqLiber .And.; 
+					SEF->(EF_FILIAL+EF_PREFIXO+EF_TITULO+EF_PARCELA+EF_TIPO) ==;
+					xFilial("SEF")+SE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO)
+				If SEF->EF_ORIGEM = "FINA390TIT" .And. SEF->EF_LIBER == "S"
+					lChqLiber := .F.
+				EndIf
+				SEF->(dbSkip())
+			EndDo
+			RestArea(aAreaSE2)
+			If !lChqLiber
+				SE2->(dbSkip())
+				Loop
+			EndIf
+		EndIf
+  		
+		IF !lAchou
+			aDados3[DT_VENC] := SE2->E2_VENCREA
+		EndIF
+
+		aDados3[PREFIXO] := SE2->E2_PREFIXO
+		aDados3[TITUL] := SE2->E2_NUM+(IIF(!EMPTY(SE2->E2_PARCELA),"-",""))+SE2->E2_PARCELA
+		aDados3[16]    := IIf(!Empty(SE2->E2_VENCORI),SE2->E2_VENCORI,SE2->E2_VENCTO)
+		aDados3[TIPO] := SE2->E2_TIPO
+		aDados3[EMISSAO] := SE2->E2_EMISSAO
+		aDados3[FORNEC] := SE2->E2_FORNECEDOR
+		aDados3[NOM_FORNEC] := SubStr(SE2->E2_NOMFOR,1,25)
+		aDados3[HISTORICO] := SubStr(SE2->E2_HIST,1,25)
+
+		nAbatim := 0
+		If mv_par13 == 2
+
+			//Quando considerar Titulos com emissao futura, eh necessario
+			//colocar-se a database para o futuro de forma que a Somaabat()
+			//considere os titulos de abatimento
+			If mv_par14 == 1
+				dOldData := dDataBase
+				dDataBase := CTOD("31/12/40")
+			Endif
+
+			nAbatim := SomaAbat(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,"P",mv_par02,,SE2->E2_FORNECE,SE2->E2_LOJA)
+
+			If mv_par14 == 1
+				dDataBase := dOldData
+			Endif
+
+		Endif	
+		nSaldup -= nAbatim
+		nDispon -= nAbatim      
+		If cPaisLoc <> "BRA" .And. (E2_TIPO $ MV_CPNEG	 .Or. ( SE2->E2_TIPO $ MVPAGANT .And. (!Empty(SE2->E2_ORDPAGO) .Or. cPaisLoc =="ARG")))
+			nVlrImp:= (SE2->E2_VALOR+SE2->E2_ACRESC-SE2->E2_DECRESC-nAbatim) * -1
+		Else
+			nVlrImp:= (SE2->E2_VALOR+SE2->E2_ACRESC-SE2->E2_DECRESC-nAbatim)
+		EndIf
+		// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+		lTxMoeda := SM2->(MsSeek(dDataVenc)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+
+		aDados3[VL_ORIG] := xMoeda(nVlrImp,SE2->E2_MOEDA,mv_par02,If(lTxMoeda,dDataVenc,dDataBase),,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+		IF cPaisLoc <> "BRA" .And. E2_TIPO $ MVPAGANT+"/"+MV_CPNEG
+			aDados3[VL_PAG] := nSalDup * -1
+		Else
+			aDados3[VL_PAG] := nSalDup
+		Endif
+		aDados3[VL_DIS] := nDispon
+
+		IF mv_par02!=1 .and. !lAchou
+			dbSelectArea("SM2")
+			dbSeek(dDataVenc)
+			aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+		EndIF
+
+		lBxFut := .T.
+		lImpDev := .T.		
+		oSection3:PrintLine()
+		aFill(aDados3,nil)
+
+		lAchou:=.T.
+		dbSelectArea("SE2")
+		IF E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+			nTotTitP -= nSalDup
+		Else
+			nTotTitP += nSalDup
+		End
+		dbSkip()
+	End
+	
+If cIpProj =="S"
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe emprestimo a pagar no dia.					  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea( "SEG" )
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(cFilial+Dtos(dDataVenc))
+	Else
+		dbSetOrder( nIndexSEG ) 
+		dbSeek(Dtos(dDataVenc))
+	Endif
+	
+	lAchou := .f.
+
+	While !Eof() .And. EG_DATARES == dDataVenc
+		
+		IF mv_par03 == 1 .and. EG_FILIAL != cFilial
+			Exit
+		End
+		
+		If SEG->EG_TIPO != "EMP"
+			dbSkip( )
+			Loop
+		End
+		
+		nDiasInt	:= EG_DATARES-EG_DATA	//Dias de Intervalo
+		nJurDiario:= EG_TAXA/nDiasInt	  //Juros Diario
+		nValJuros := EG_VALOR+((EG_VALOR*nJurDiario)/100)*nDiasInt
+		nValGanho := nValJuros-EG_VALOR
+		nValJuros -= nValGanho*EG_IMPOSTO/100 //Impostos
+		IF mv_par02 == 1
+			nDispon -= nValJuros
+		Else
+			dbSelectArea("SM2")
+			dbSeek( dDataVenc )
+			nDispon -= nValJuros/&('SM2->M2_MOEDA'+cSuf)
+		EndIF
+		dbSelectArea("SEG")
+
+		IF !lAchou
+			aDados3[DESC_TOTAL] := DtoC(EG_DATARES)
+		EndIF
+
+		aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0022 + EG_TIPO + " - " + EG_BANCO  //"Projecao de Pagamento de Emprestimo "
+		aDados3[VL_ORIG] := If(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf))
+		aDados3[VL_PAG] := If(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+		aDados3[VL_DIS] := nDispon
+
+		IF mv_par02!=1 .and. !lAchou
+			dbSelectArea("SM2")
+			dbSeek(dDataVenc)
+			aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+		EndIF
+		
+		lAchou:=.T.
+		
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.		
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+
+		dbSelectArea("SEG")
+		nTotTitP	+= IIF(mv_par02==1,nValJuros,nValJuros/ &('SM2->M2_MOEDA'+cSuf))
+		dbSkip()
+	End
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe emprestimo a pagar no dia.					  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea("SEH")
+	If ( MV_PAR03 == 1 )
+		dbSetOrder(2)
+		dbSeek(xFilial("SEH")+"A")
+	Else
+		dbSetOrder( nIndexSEH ) 
+		dbSeek("A")
+	Endif
+
+	lAchou := .f.
+	While ( !Eof() .And. If(MV_PAR03==1,SEH->EH_FILIAL==xFilial("SEH"),.T.) .And.;
+				SEH->EH_STATUS=="A" )
+		If ( SEH->EH_APLEMP == "EMP" )
+			If ( Empty(SEH->EH_DATARES) .And. J==1 ) .Or.;
+				( SEH->EH_DATARES == dDataVenc )
+				nValJuros := xMoeda(SEH->EH_SALDO,SEH->EH_MOEDA,1)
+            If mv_par02 == 1 //Controlo a operacao para moeda 1 e demais moedas (2~X)
+					nValJuros := xMoeda(SEH->EH_SALDO,SEH->EH_MOEDA,1)   //Moeda 1
+				Else
+					nValJuros := SEH->EH_SALDO                            //Demais moedas (2~X)
+				EndIf
+				aValAplic := Fa171Calc(dDataVenc,,,,,,,, mv_par03 = 1)
+				If Len(aValAplic) > 0	
+					nValJuros += aValAplic[2,2]
+				Endif	
+			Else
+				nValJuros := 0
+			EndIf
+			If ( nValJuros != 0 )
+				If ( MV_PAR02 == 1 )
+					nDispon -= (nValJuros)
+				Else
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek( dDataVenc )
+					nDispon -= (nValJuros)
+				EndIf
+
+				IF !lAchou
+					//aDados3[DESC_TOTAL] := DtoC(SEH->EH_DATARES)
+					aDados3[DESC_TOTAL] := If( !Empty(SEH->EH_DATARES) , DtoC(SEH->EH_DATARES),nil )
+				EndIf
+
+            If(SEH->EH_MOEDA > 1)
+            	nValMoeda := &('SM2->M2_MOEDA' + CVALTOCHAR(SEH->EH_MOEDA))
+            Else
+            	nValMoeda := 1
+            EndIf
+				aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0022 +SEH->EH_TIPO+" - "+SEH->EH_BANCO  //"Projecao de Pagamento de Emprestimo "
+				aDados3[VL_ORIG] := If(MV_PAR02==1,SEH->EH_SALDO*nValMoeda,If(SEH->EH_MOEDA > 1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf)))
+				aDados3[VL_PAG] := If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))
+				aDados3[VL_DIS] := nDispon
+		
+				If ( MV_PAR02!=1 .And. !lAchou )
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek(dDataVenc)
+					aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+				EndIf
+
+				HabiCel(.F.,oReport)
+				lBxFut := .T.
+				lImpDev := .T.						
+				oSection3:PrintLine()
+				HabiCel(.T.,oReport)
+				aFill(aDados3,nil)
+			EndIf
+
+			lAchou:=.T.
+			
+			nTotTitP	+= If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))
+
+			If dDataVenc < SEH->EH_DATA
+				dDataVenc := SEH->EH_DATA
+			EndIf
+		EndIf
+		dbSelectArea("SEH")
+		dbSkip()
+	EndDo
+
+Endif
+	nEL:=0
+	IF Len(aVendas)>0
+		nEl:=Ascan(adVendas,dDataVenc)
+		If nEl > 0 .And. !lAchouUm
+			lAchouUm := .T.
+		Endif	
+		// Nao encontrou um pedido de venda na data atual e eh a primeira busca
+		If !lAchouUm .And. !lDataInf 
+			// Procura em uma data menor, apenas uma vez
+			nEl:=Ascan(adVendas,{|e| e <= dDataVenc} )
+			lDataInf := .T.
+		Endif
+	EndIF
+	lAchou := .f.
+	IF nEl != 0
+
+		IF !lAchou
+			aDados3[DESC_TOTAL] := DtoC(dDataVenc)
+		EndIF
+		
+		nValor := aVendas[nEl,2]
+		nEl++		
+		Do While nEl <= Len(aVendas) .And. aVendas[nEl,1] == dDataVenc
+			nValor += aVendas[nEl,2]
+			nEl++
+		EndDo
+		
+		nDispon += nValor
+		
+		aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0023  //"Pedidos de Vendas"
+		aDados3[VL_REC] := nValor
+		aDados3[VL_DIS] := nDispon
+
+		IF mv_par02 != 1 .and. !lAchou
+			dbSelectArea("SM2")
+			Seek dDataVenc
+			aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+		EndIF
+
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.				
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+
+		lAchou := .T.
+		nTotTitR += nValor
+	EndIF
+	
+	nEl:=0
+	
+	IF Len(aCompras)>0
+		nEl := Ascan(adCompras,dDataVenc)
+	EndIF
+	
+	lAchou := .f.
+	IF nEl != 0
+		IF !lAchou
+			aDados3[DESC_TOTAL] := DtoC(dDataVenc)
+		EndIF
+		
+		nValor:=0
+		For i:=1 to Len(aCompras)
+			If aCompras[i][1]==dDataVenc
+				nValor+= aCompras[I][2]
+			EndIf
+		Next i
+		
+		nDispon -= nValor
+      
+		aDados3[DESC_TOTAL] := PadR(aDados3[DESC_TOTAL],09) + STR0024  //"Pedidos de Compras"
+		aDados3[VL_PAG] := nValor
+		aDados3[VL_DIS] := nDispon
+
+		IF mv_par02 != 1 .and. ! lAchou
+			dbSelectArea("SM2")
+			Seek dDataVenc
+			aDados3[TAXA] := &('SM2->M2_MOEDA'+cSuf)
+		EndIF
+
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.				
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+
+		nTotTitP += nValor
+		lAchou := .T.
+	EndIF
+	
+	If nTotTitR !=0 .or. nTotTitP != 0
+		oReport:SkipLine()
+		aDados3[DESC_TOTAL] := STR0025 + DtoC(dDataVenc)  //"Total Do Dia ---> "
+		aDados3[VL_PAG] := nTotTitP
+		aDados3[VL_REC] := ntotTitR
+		aDados3[VL_DIS] := nDispon
+		HabiCel(.F.,oReport)
+		lBxFut := .T.
+		lImpDev := .T.				
+		oSection3:PrintLine()
+		HabiCel(.T.,oReport)
+		aFill(aDados3,nil)
+		oReport:SkipLine()
+		nTotGTitR += nTotTitR
+		nTotGTitP += nTotTitP
+		nTotTitP := 0
+		nTotTitR := 0   
+	Endif
+	
+Next j
+
+
+oReport:SkipLine()
+aDados3[DESC_TOTAL] := STR0026  //"Total Geral  --->"
+aDados3[VL_PAG] := nTotGTitP+nApagVenc
+aDados3[VL_REC] := nTotGTitR+nTotFutR+nArecVenc
+aDados3[VL_DIS] := nDispon
+
+HabiCel(.F.,oReport)
+lBxFut := .T.
+lImpDev := .T.		
+oSection3:PrintLine()
+HabiCel(.T.,oReport)
+aFill(aDados3,nil)
+
+oSection3:Finish()
+
+// Contas a receber
+RetIndex("SE1")
+dbSelectArea("SE1")
+SE1->(dbSetOrder(1))
+SE1->(dbClearFilter())
+
+// Contas a pagar
+RetIndex("SE2")
+dbSelectArea("SE2")
+SE2->(dbSetOrder(1))
+SE2->(dbClearFilter())
+
+// Comissao de vendas
+RetIndex("SE3")
+dbSelectArea("SE3")
+SE3->(dbSetOrder(1))
+SE3->(dbClearFilter())
+
+// Movimentacao bancaria
+RetIndex("SE5")
+dbSelectArea("SE5")
+SE5->(dbSetOrder(1))
+SE5->(dbClearFilter())
+
+// Contas Corrente
+RetIndex("SA6")
+dbSelectArea("SA6")
+SA6->(dbSetOrder(1))
+SA6->(dbClearFilter())
+
+// Saldos bancarios
+RetIndex("SE8")
+dbSelectArea("SE8")
+SE8->(dbSetOrder(1))
+SE8->(dbClearFilter())
+
+// Controle de aplicacoes
+RetIndex("SEG")
+dbSelectArea("SEG")
+SEG->(dbSetOrder(1))
+SEG->(dbClearFilter())
+
+RetIndex("SEH")
+dbSelectArea("SEH")
+SEH->(dbSetOrder(1))
+SEH->(dbClearFilter())
+
+Ferase(cArqSEH+OrdBagExt())
+Ferase(cArqSEG+OrdBagExt())
+Ferase(cArqSE5+OrdBagExt())
+Ferase(cArqSE2+OrdBagExt())
+Ferase(cArqSE1+OrdBagExt())
+Ferase(cArqSE3+OrdBagExt())
+Ferase(cArqSE8+OrdBagExt())
+Ferase(cArqSA6+OrdBagExt())
+
+cNumMoeda := " "
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡„o	 ³HabiCel	³ Autor ³ Daniel Tadashi Batori ³ Data ³ 15/08/06 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡„o ³habilita ou desabilita celulas para imprimir totais			  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe e ³ HabiCel()	 															  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ lHabilit->.T. para habilitar e .F. para desabilitar		  ³±±
+±±³			 ³ oReport ->objeto TReport que possui as celulas 				  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso		 ³ Generico 																  ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+STATIC Function HabiCel(lHabilit,oReport)
+Local oSection3 := oReport:Section(3)
+
+If lHabilit
+	
+	oSection3:Cell("TOTAL"):Disable()
+	oSection3:Cell("E2_VENCREA"):Enable()
+	oSection3:Cell("E2_PREFIXO"):Enable()
+	oSection3:Cell("TITULO"):Enable()
+	oSection3:Cell("E2_TIPO"):Enable()
+	oSection3:Cell("E2_EMISSAO"):Enable()
+	oSection3:Cell("E2_FORNECEDOR"):Enable()
+	oSection3:Cell("E2_NOMFOR"):Enable()
+	oSection3:Cell("E2_HIST"):Enable()
+	
+Else
+
+	oSection3:Cell("TOTAL"):Enable()
+	oSection3:Cell("E2_VENCREA"):Disable()
+	oSection3:Cell("E2_PREFIXO"):Disable()
+	oSection3:Cell("TITULO"):Disable()
+	oSection3:Cell("E2_TIPO"):Disable()
+	oSection3:Cell("E2_EMISSAO"):Disable()
+   	oSection3:Cell("E2_FORNECEDOR"):Disable()
+	oSection3:Cell("E2_NOMFOR"):Disable()
+	oSection3:Cell("E2_HIST"):Disable()
+	
+EndIf
+
+Return
+
+
+
+
+
+
+
+
+
+
+
+/*
+---------------------------------------------------------- RELEASE 3 ---------------------------------------------
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o	 ³ FINR140R3³ Autor ³ Wagner Xavier 		  ³ Data ³ 01.06.92 				³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Fluxo de Caixa Analitico											 				³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe e ³ FINR140R3(void)														  				³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function Finr140R3()
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Define Variaveis 														  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+LOCAL wnrel
+LOCAL cString:= "SE1"
+LOCAL cDesc1 := STR0001  //"Este programa ir  imprimir o Fluxo de Caixa, informando      "
+LOCAL cDesc2 := STR0002  //"ao usu rio quais as suas contas a receber e a pagar dia a    "
+LOCAL cDesc3 := STR0003  //"dia e tambem seu dispon¡vel de acordo com os saldos banc rios"
+Local aAplicSeh
+
+PRIVATE titulo := OemToAnsi(STR0004)  // "Fluxo de Caixa Analitico"
+PRIVATE cabec1
+PRIVATE cabec2
+PRIVATE tamanho:= "G"
+PRIVATE aReturn	:= {OemToAnsi(STR0005), 1,OemToAnsi(STR0006), 2, 2, 1, "",1 }  // "Zebrado"###"Administracao"
+PRIVATE nomeprog	:= "FINR140"
+PRIVATE aLinha 	:= { }
+PRIVATE cPerg		:= "FIN140"
+PRIVATE adCompras := {},adVendas:={}
+PRIVATE aCompras	:= {},aVendas:={}
+PRIVATE cErros 	:= ""
+Private nRegs
+Private cIpProj := GetMv("MV_IPPRJAP")
+Private nLastKey:=0
+
+dbSelectArea("SM0")
+nRegs:=SM0->(RecCount())
+GetMv("MV_IPPRJAP")
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Verifica as perguntas selecionadas 								  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Ajusta()
+pergunte("FIN140",.F.)
+aAplicSeh := Aplicacoes(mv_par03==1,MV_PAR02)
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis utilizadas para parametros								  ³
+//³ mv_par01				// Nro de Dias 								  ³
+//³ mv_par02				// Moeda 										  ³
+//³ mv_par03				// Imprime Por Filial ou Empresa 		  ³
+//³ mv_par04				// Considera Pedidos de Vendas			  ³
+//³ mv_par05				// Considera Pedidos de Compras			  ³
+//³ mv_par06				// Considera Vencidos						  ³
+//³ mv_par07				// Considera Comissoes						  ³
+//³ mv_par08				// Considera Moedas							  ³
+//³ mv_par09				// Do Prefixo       							  ³
+//³ mv_par10				// At‚ o Prefixo       						  ³
+//³ mv_par11				// Retroativo?         						  ³ 
+//³ mv_par12				// Outras Moedas?    				        ³
+//³ mv_par13				// Lista abatimentos?				        ³
+//³ mv_par14   			// Tit. Emissao Futura                   ³
+//³ mv_par15   			// Considera limite de credito ?			  ³
+//³ mv_par16   			// Tipo de Saldo ?							  ³
+//³                        (Normal/Conciliado/Nao Conciliado)	  ³
+//³ mv_par17   			// Compoe Saldo por?		(Data da Baixa/  ³
+//³                        Data de Credito/Data Digitacao)   	  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Definicao dos cabecalhos												  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cabec1 := OemToAnsi(STR0007)  //"Data Ref Prf Numero-PC     Tipo Dt Emiss Cli/For               Nome Cliente/Fornecedor     Historico                Valor Original         a Pagar             a Receber        Disponivel      Observacoes"
+cabec2 := " "
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Envia controle para a funcao SETPRINT 							  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+wnrel := "FINR140"            //Nome Default do relatorio em Disco
+wnrel := SetPrint(cString,wnrel,cPerg,@titulo,cDesc1,cDesc2,cDesc3,.F.,"",,Tamanho,"",.F.)
+
+If nLastKey == 27
+	Return
+Endif
+
+SetDefault(aReturn,cString,.F.)
+
+If nLastKey == 27
+	Return
+Endif
+
+RptStatus({|lEnd| Fa140Imp(@lEnd,wnRel,cString,aAplicSeh)},Titulo)
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o	 ³ FA140Imp ³ Autor ³ Wagner Xavier 		  ³ Data ³ 01.06.92 ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Fluxo de Caixa Analitico											  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe e ³ FA140IMP(lEnd,wnRel,cString)										  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ lEnd	  - A‡Æo do Codeblock										  ³±±
+±±³			 ³ wnRel   - T¡tulo do relat¢rio 									  ³±±
+±±³			 ³ cString - Mensagem													  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso		 ³ Generico 																  ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function FA140Imp(lEnd,wnRel,cString,aAplicSeh)
+
+LOCAL cbCont,CbTxt
+LOCAL nDias
+LOCAL nValor
+LOCAL w
+LOCAL nTotSaidas
+LOCAL dDataVenc
+LOCAL lAchou	:= .F.
+LOCAL dDataAte
+LOCAL dDataImp
+LOCAL limite			:= 220
+LOCAL lContinua		:= .T.
+LOCAL lFirst			:= .T.
+LOCAL nDispon			:= 0
+LOCAL nEl				:= 0
+LOCAL aContas			:= {}
+LOCAL nDiasInt			:= 0
+LOCAL nJurDiario		:= 0
+LOCAL nValJuros		:= 0
+LOCAL nValGanho		:= 0
+LOCAL aValAplic      := 0
+LOCAL nTotTitR			:= 0
+LOCAL nTotTitP			:= 0
+LOCAL nTotGTitR		:= 0
+LOCAL nTotGTitP		:= 0
+LOCAL nRecHoje			:= 0
+LOCAL nPagHoje			:= 0
+Local nChqPend			:= 0
+LOCAL nTotAplic		:= 0
+LOCAL nTotResg			:= 0
+LOCAL nTotEntradas	:= 0
+LOCAL aAplic			:= {}
+LOCAL aResgate			:= {}
+LOCAL aBancosA			:= {}
+LOCAL aBancosR			:= {}
+LOCAL nSalDup			:= 0
+LOCAL cArqSA6			:= " "
+LOCAL cArqSE1			:= " "
+LOCAL cArqSE2			:= " "
+LOCAL cArqSE5			:= " "
+LOCAL cArqSEG			:= " "
+LOCAL cArqSEH			:= " "
+LOCAL cCondSE1			:= " "
+LOCAL cCondSE2			:= " "
+LOCAL cCondSE5			:= " "
+LOCAL nIndexSE3
+LOCAL nIndexSE1
+LOCAL nIndexSE2
+LOCAL nIndexSE5
+LOCAL nIndexSEG
+LOCAL nIndexSEH
+LOCAL nApagVenc		:= 0 
+LOCAL nArecVenc		:= 0 
+LOCAL nComissoes	:= 0
+LOCAL cArqSE3		:= ""
+Local dDtSE8        := Ctod("")
+Local lSldSE8		:= .F.
+Local nIndSE8		:= 1
+Local cArqSE8       := ""
+Local nRegSa6       := 0
+Local nRecSE8       := 0
+Local nDecs			:= GetMv("MV_CENT"+(IIF(mv_par02 > 1 , STR(mv_par02,1),""))) 
+Local nMoedaBco		:=	1
+Local nMoeda        := mv_par02
+Local cAplCotas   	:= GetMv("MV_APLCAL4")
+Local nAscan
+Local lDataInf := .F.
+Local lAchouUm := .F.
+Local nAbatim
+Local nVlrImp	:= 0
+Local dOldData	:= dDatabase
+Local nLimCred := 0
+Local j
+Local i        := 0
+Local lLibCheq := GetMv("MV_LIBCHEQ")=="N" // Para controlar os cheques pendentes de liberacao.
+Local lChqLiber := .T.
+Local lTxMoeda	:= .T.
+Local nAcumRc 	:= 0
+Local nTotFutR := 0
+Local aStru 	:= SE1->(DbStruct())
+Local lImpFut  := .F.
+Local nVlMoeda := 0
+Local lMovBco := .F. 
+Local lSldZera := IIF(mv_par18==1,.F.,.T.)
+Local dVencRea		:= CtoD("")
+Local dDataVcOri	:= CtoD("")
+Local nDiasRet		:= 0 
+Local nX			:= 0
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Variaveis utilizadas para Impressao do Cabecalho e Rodape	  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+cbtxt  := SPACE(10)
+cbcont := 0
+li 	 := 80
+m_pag  := 1
+
+//Ponto de entrada para escolha entre bancos com ou sem movimento
+If ExistBlock("FA140MVB")
+	lMovBco := ExecBlock("FA140MVB")
+Endif
+
+if mv_par03 == 2
+
+	// Contas a receber
+	dbSelectArea("SE1")
+	cArqSE1 := SubStr(criatrab("",.f.),1,7)+"A"
+	IndRegua("SE1",cArqSE1,"DTOS(E1_VENCREA)+E1_NOMCLI+E1_PREFIXO+E1_NUM+E1_PARCELA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE1 := RetIndex("SE1") + 1
+	#IFNDEF TOP
+		SE1->(dbSetIndex(cArqSE1+OrdBagExt()))
+	#ENDIF
+	dbSetOrder( nIndexSE1 ) 
+	
+	// Contas a pagar
+	dbSelectArea("SE2")
+	cArqSE2 := SubStr(criatrab("",.f.),1,7)+"B"
+	IndRegua("SE2",cArqSE2,"DTOS(E2_VENCREA)+E2_NOMFOR+E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE2 := RetIndex("SE2") + 1
+	#IFNDEF TOP
+		SE2->(dbSetIndex(cArqSE2+OrdBagEXT()))
+	#ENDIF
+	dbSetOrder( nIndexSE2 )
+		
+	// Movimentacao bancaria
+	dbSelectArea("SE5")
+	cArqSE5 := SubStr(criatrab("",.f.),1,7)+"C"
+	IndRegua("SE5",cArqSE5,"DTOS(E5_DATA)+E5_BANCO+E5_AGENCIA+E5_CONTA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndexSE5 := RetIndex("SE5") + 1
+	#IFNDEF TOP
+		SE5->(dbSetIndex(cArqSE5+OrdBagEXt()))
+	#ENDIF
+
+	//Contas Correntes
+	If !Empty(xFilial("SA6"))
+		dbSelectArea("SA6")
+		cArqSA6 := CriaTrab(,.F.)
+		IndRegua("SA6",cArqSA6,"A6_COD+A6_AGENCIA+A6_NUMCON",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+		nIndSA6 := RetIndex("SA6") + 1
+		#IFNDEF TOP
+			dbSetIndex(cArqSA6+OrdBagExT())
+		#ENDIF
+		dbSetOrder(nIndSA6)
+	Endif
+
+	// Saldo Bancario
+	dbSelectArea("SE8")
+	cArqSE8 := CriaTrab(,.F.)
+	IndRegua("SE8",cArqSE8,"E8_BANCO+E8_AGENCIA+E8_CONTA+DTOS(E8_DTSALAT)",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	nIndSE8 := RetIndex("SE8") + 1
+	#IFNDEF TOP
+		dbSetIndex(cArqSE8+OrdBagExT())
+	#ENDIF
+	dbSetOrder(nIndSE8)
+
+	// Aplicacoes e emprestimos
+	dbSelectArea("SEG")
+	cArqSEG := SubStr(criatrab("",.f.),1,7)+"D"
+	IndRegua("SEG",cArqSEG,"DTOS(EG_DATARES)+EG_BANCO+EG_AGENCIA+EG_CONTA",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	SEG->(dbCommit())
+	nIndexSEG := RetIndex("SEG") + 1
+	#IFNDEF TOP
+		SEG->(dbSetIndex(cArqSEG+OrdBagEXT()))
+	#ENDIF
+	// Aplicacoes e emprestimos
+	dbCommit()
+	dbSelectArea("SEH")
+	cArqSEH := criatrab("",.f.)
+	IndRegua("SEH",cArqSEH,"EH_STATUS+EH_APLEMP",,,OemToAnsi(STR0008))  //"Selecionando Registros..."
+	SEH->(dbCommit())
+	nIndexSEH := RetIndex("SEH") + 1
+	#IFNDEF TOP
+		SEH->(dbSetIndex(cArqSEH+OrdBagExt()))
+	#ENDIF
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Cria indice condicional temporario para analise das comissoes ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if mv_par07 == 1		// Analisa comissoes == Sim
+
+	If Empty(cArqSE3)
+
+		dbSelectArea("SE3")
+		cArqSE3 := SubStr(criatrab("",.f.),1,7)+"E"
+		cChave := "DTOS(E3_DATA)"
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Condicao 1 - Somente filial 			  ³
+		//³Condicao 2 - Todas filias (Empresa)	  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		#IFDEF TOP
+			if mv_par03 == 1
+				// Nao Alterar o ctod(01/01/80)
+				cCond := 'DTOS(E3_DATA)<="'+Dtos(ctod("01/01/80","ddmmyy"))+'".AND.E3_FILIAL=="'+xFilial("SE3")+'"'
+			else
+				cCond := 'DTOS(E3_DATA)<="'+Dtos(ctod("01/01/80","ddmmyy"))+'"'
+			endif
+		#ELSE
+			If mv_par03 == 1
+				cCond := "EMPTY(E3_DATA) .and. E3_FILIAL == xfilial('SE3')"
+			Else
+				cCond := "EMPTY(E3_DATA)"
+			Endif
+		#ENDIF
+		
+		IndRegua("SE3",cArqSE3,cChave,,cCond,OemToAnsi(STR0008))  //"Selecionando Registros..."
+		dbSelectArea("SE3")
+		nIndexSE3		:= RetIndex("SE3") + 1
+		#IFNDEF TOP
+			SE3->(dbSetIndex(cArqSE3+OrdBagExt()))
+		#ENDIF
+		dbSetOrder(nIndexSE3)
+		SE3->(DbGoTop())
+	Else
+		dbSelectArea("SE3")
+		nIndexSE3		:= RetIndex("SE3") + 1
+		#IFNDEF TOP
+			SE3->(dbSetIndex(cArqSE3+OrdBagExt()))
+		#ENDIF
+		dbSetOrder( nIndexSE3 )
+	Endif
+Endif
+
+Titulo += " em "+GetMV("MV_MOEDA"+AllTrim(Str(mv_par02,2)))
+dDataAte := dDataBase+mv_par01
+
+IF mv_par02 != 1
+	cSuf := AllTrim(Str(mv_par02,2))
+	cabec1 := OemToAnsi(STR0009) //"Data Ref Prf Numero    PC Tipo Dt Emiss Cli/For               Nome Cliente/Fornecedor     Historico                  Valor Original          a Receber            a Pagar          Disponivel         Taxa do Dia    Observacoes"
+	dbSelectArea("SM2")
+	dbSeek( dDataBase )
+EndIF
+
+IF li == 80
+	cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+End
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Imprime disponibilidade Bancaria									  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+dbSelectArea("SA6")
+If ( MV_PAR03 == 1 )
+	dbSeek(cFilial)
+Else
+	dbGotop()
+EndIf
+cSuf := AllTrim(Str(mv_par02,2,0))
+While ! SA6->(Eof()) .and. If(MV_PAR03==1,SA6->A6_FILIAL == cFilial,.T.)
+	
+	IF li > 58
+		cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+		lFirst:=.T.
+	EndIF
+	
+	IF SA6->A6_FLUXCAI == "N"
+		SA6->(dbSkip())
+		Loop
+	Endif
+	nRegSa6 := RecNo()
+	If lFirst
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³ Verifica se houve movimenta‡„o bancaria no dia da emissao do fluxo³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dbSelectArea("SE5")
+		// 1-Verifica filial
+		If mv_par03 == 1			
+			cCondSE5 := "!EOF() .and. E5_FILIAL == xFilial('SE5')"
+		Else
+			cCondSE5 := "!EOF()"
+		Endif
+		
+		If mv_par03 == 1  // 1-Verifica Filial
+			dbSetOrder(1)
+			dbSeek(cFilial+DTOS(dDataBase),.T.)
+		Else
+			dbSetOrder(nIndexSE5)
+			dbSeek(DTOS(dDataBase),.T.)
+		Endif
+		
+		While &cCondSE5
+			If mv_par14 == 1
+			   If E5_DATA > dDataAte
+			      Exit
+			   EndIf			
+			Else
+			   If E5_DATA > dDataBase
+			      Exit
+			   EndIf						
+			Endif 
+			
+			IF mv_par03 == 1 .and. E5_FILIAL != cFilial
+				Exit
+			EndIF
+			
+			IF E5_SITUACA == "C" .or. E5_TIPODOC $ "JRşMTşDCşBAşCMşJ2şM2şD2şC2şV2şCXşCPüTL"
+				dbSkip( )
+				Loop
+			EndIf
+
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//³ Verifica se existe baixas estornadas           ³
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			If TemBxCanc(E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_CLIFOR+E5_LOJA+E5_SEQ)
+				dbskip()
+				loop
+			EndIf
+			nMoedaTit := BuscaMoeda()
+        		
+			If cPaisLoc	# "BRA".And.!Empty(SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA)
+				SA6->(DbSetOrder(1))
+				SA6->(DbSeek(xFilial()+SE5->E5_BANCO+SE5->E5_AGENCIA+SE5->E5_CONTA))
+				nMoedaBco	:=	Max(SA6->A6_MOEDA,1)
+			Else
+				nMoedaBco	:=	1
+			Endif
+
+            If mv_par12 = 2
+               If nMoedaBco <> nMoeda   
+                  SE5->(dbSkip())
+                  Loop
+               EndIf
+            EndIf
+			
+			IF E5_TIPODOC == "AP"  .And. E5_RECPAG = "P"     //Aplicacoes
+				nTotAplic += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosA,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosA,E5_BANCO)
+					AADD(aAplic,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aAplic[nEl][2] += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "AP" .And. E5_RECPAG = "R"      //Estorno de Aplicacoes
+				nTotAplic -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosA,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosA,E5_BANCO)
+					AADD(aAplic,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aAplic[nEl][2] -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "RF" .And. E5_RECPAG = "R"  //Resgates
+				nTotResg += xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosR,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosR,E5_BANCO)
+					AADD(aResgate,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aResgate[nEl][2]+=xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf
+			ElseIf E5_TIPODOC == "RF" .And. E5_RECPAG = "P"  //Estorno de Resgates
+				nTotResg -= xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				nEl := Ascan(aBancosR,E5_BANCO)
+				IF nEl == 0
+					AADD(aBancosR,E5_BANCO)
+					AADD(aResgate,{E5_BANCO,E5_VALOR,E5_FILIAL})
+				Else
+					aResgate[nEl][2]-=xMoeda(E5_VALOR,nMoedaBco,nMoeda,E5_DATA,nDecs+1)
+				EndIf	
+			ElseIf E5_TIPODOC == "EP" .And. E5_RECPAG=="R" // Emprestimo
+				nRecHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "EP" .And. E5_RECPAG=="P" // Estorno de Emprestimo
+				nRecHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "PE" .And. E5_RECPAG=="P" // Pagamento de emprestimo
+				nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "PE" .And. E5_RECPAG=="R" // Estorno de pagamento de emprestimo
+				nPagHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_TIPODOC == "RA" .And. E5_RECPAG=="R" .And. E5_DATA <> dDataBase  // Pagamento Antecipado
+				nPagHoje -= Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1))												 									 			
+			ElseIf E5_RECPAG == "R" .And. ! E5_TIPODOC $ "EP#PE#AP#RF"
+				// Movimento a receber que nao seja emprestimo nem pagto de emprestimo
+				nRecHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+			ElseIf E5_RECPAG == "P" .And. ! E5_TIPODOC $ "EP#PE#AP#RF"
+				If lLibCheq
+					// Pesquisa cheque pendentes de liberacao
+					SEF->(DbSetOrder(3))									 
+					If SEF->(MsSeek(xFilial("SEF")+SE5->(E5_PREFIXO+E5_NUMERO+E5_PARCELA+E5_TIPO+E5_NUMCHEQ+E5_SEQ))) .And.;
+						SEF->EF_LIBER $ " N"
+						nChqPend += SEF->EF_VALOR
+					Else
+						// Movimento a pagar que nao seja emprestimo nem pagto de emprestimo
+						nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+										 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))
+					Endif	
+				Else
+					// Movimento a pagar que nao seja emprestimo nem pagto de emprestimo
+					nPagHoje += Iif(mv_par02 == 1,xMoeda(E5_VALOR,nMoedaBco,1,E5_DATA,nDecs+1),;
+									 If(SEH->EH_MOEDA > 1,E5_VLMOED2,xMoeda(E5_VLMOED2,nMoedaTit,nMoeda,E5_DATA,nDecs+1)))	 
+				Endif	
+			EndIf
+			
+			dbSkip()
+			
+		End
+		
+		IF (nPagHoje+nRecHoje+nTotAplic+nTotResg+nChqPend) != 0
+			@li,0 PSAY OemToAnsi(STR0010)  //"Movimentacao na data ate a hora da emissao"
+			nTotEntradas := nTotResg + nRecHoje
+			nTotSaidas	 := nTotAplic + nPagHoje + nChqPend
+			li++
+			@li,	0 PSAY OemToAnsi(STR0011)+Replicate(".",109)  //"Aplicacoes "
+			@li,130 PSAY IIF(mv_par02 == 1,nTotAplic,If(SEH->EH_MOEDA > 1,nTotAplic,nTotAplic/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,nTotAplic,If(SEH->EH_MOEDA > 1,nTotAplic,nTotAplic/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			IF nTotAplic>0
+				For w := 1 To Len(aBancosA)
+					li++
+					@li,  4 PSAY aAplic[w][1]
+					dbSelectArea("SA6")
+					If ( xFilial("SA6") == Space(nTamFilial) )
+						dbSeek(cFilial+aAplic[w][1])
+					Else
+						dbSeek(aAplic[w,3]+aAplic[w][1])
+					EndIf
+					@li,  9 PSAY AllTrim(A6_NREDUZ)+Replicate(".",90-Len(AllTrim(A6_NREDUZ)))
+					@li,107 PSAY IIF(mv_par02==1,aAplic[w][2],If(SEH->EH_MOEDA > 1,aAplic[w][2],aAplic[w][2]/&('SM2->M2_MOEDA'+cSuf)))	PicTure tm(IIF(mv_par02==1,aAplic[w][2],If(SEH->EH_MOEDA > 1,aAplic[w][2],aAplic[w][2]/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				Next w
+			EndIF
+			li++
+			@li,	0 PSAY OemToAnsi(STR0012)+Replicate(".",111)  //  "Resgates "
+			@li,153 PSAY IIF(mv_par02==1,nTotResg,If(SEH->EH_MOEDA > 1,nTotResg,nTotResg/&('SM2->M2_MOEDA'+cSuf)))	 PicTure tm(IIF(mv_par02==1,nTotResg,If(SEH->EH_MOEDA > 1,nTotResg,nTotResg/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			IF nTotResg>0
+				For w:=1 To Len(aBancosR)
+					li++
+					@li,  4 PSAY aResgate[w][1]
+					dbSelectArea("SA6")
+					If ( xFilial("SA6") == Space(nTamFilial) )
+						dbSeek(cFilial+aResgate[w][1])
+					Else
+						dbSeek(aResgate[w,3]+aResgate[w][1])
+					EndIf
+					@li,  9 PSAY AllTrim(A6_NREDUZ)+Replicate(".",90-Len(AllTrim(A6_NREDUZ)))
+					@li,107 PSAY IIF(mv_par02==1,aResgate[w][2],If(SEH->EH_MOEDA > 1,aResgate[w][2],aResgate[w][2]/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,aResgate[w][2],If(SEH->EH_MOEDA > 1,aResgate[w][2],aResgate[w][2]/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				Next w
+			EndIF
+			li++
+			@li,	0 PSAY OemToAnsi(STR0013)+Replicate(".",106)  //"Outras Saidas "
+			@li,130 PSAY IIF(mv_par02==1,nPagHoje,If(SEH->EH_MOEDA > 1,nPagHoje,nPagHoje/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,nPagHoje,If(SEH->EH_MOEDA > 1,nPagHoje,nPagHoje/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			li++
+			If lLibCheq
+				@li,	0 PSAY STR0028+Replicate(".",90) // "Cheques pendentes de liberacao"
+				@li,130 PSAY IIF(mv_par02==1,nChqPend,If(SEH->EH_MOEDA > 1,nChqPend,nChqPend/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,nChqPend,If(SEH->EH_MOEDA > 1,nChqPend,nChqPend/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				li++
+			Endif	
+			@li,	0 PSAY OemToAnsi(STR0014)+Replicate(".",104)  //"Outras Entradas "
+			@li,153 PSAY IIF(mv_par02==1,nRecHoje,If(SEH->EH_MOEDA > 1,nRecHoje,nRecHoje/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,nRecHoje,If(SEH->EH_MOEDA > 1,nRecHoje,nRecHoje/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			li+=2
+			@li,	0 PSAY OemToAnsi(STR0015)+Replicate(".",90)  //"Totais ate a hora da emissao "
+			@li,130 PSAY IIF(mv_par02==1,nTotSaidas,If(SEH->EH_MOEDA > 1,nTotSaidas,nTotSaidas/&('SM2->M2_MOEDA'+cSuf)))	PicTure tm(IIF(mv_par02==1,nTotSaidas,If(SEH->EH_MOEDA > 1,nTotSaidas,nTotSaidas/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			@li,153 PSAY IIF(mv_par02==1,nTotEntradas,If(SEH->EH_MOEDA > 1,nTotEntradas,nTotEntradas/&('SM2->M2_MOEDA'+cSuf)))  PicTure tm(IIF(mv_par02==1,nTotEntradas,If(SEH->EH_MOEDA > 1,nTotEntradas,nTotEntradas/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+			li++
+			@li,0 PSAY Replicate("-",220)
+			li+=2
+			nPagHoje := 0
+			nRecHoje := 0
+			nTotAplic:= 0 
+			nTotResg := 0
+		EndIF
+	EndIF
+	
+	dbSelectArea("SA6")
+	dbGoTo(nRegSa6)
+	dbSelectArea("SE8")
+	dbSetOrder( nIndSE8 )
+	If !(dbSeek(If(MV_PAR03==1,xFilial(),"")+SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON+DtoS(dDataBase),.t.))
+		dbSkip( -1 )
+		dDtSE8  := SE8->E8_DTSALAT
+		lSldSE8 := .F. 
+		nRecSE8 := SE8->(RECNO())
+		While (  !Bof() .And. If(MV_PAR03==1,xFilial()==SE8->E8_FILIAL,.T.) .And.;
+					SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON == ;
+					SE8->E8_BANCO+SE8->E8_AGENCIA+SE8->E8_CONTA .And.;
+					SE8->E8_DTSALAT == dDtSE8 )
+				nRecSE8 := SE8->(RECNO())
+				dbSkip(-1)	
+				lSldSE8 := .T.
+		EndDo
+		If ( lSldSE8 )
+			If SE8->(Bof())
+				dbGoTo(nRecSE8)
+			Else
+				dbSkip()
+			Endif
+		EndIf
+	EndIf
+	nValor := 0
+	While ( !Eof() .And. If(mv_par03==1,xFilial("SE8")==SE8->E8_FILIAL,.T.) .And.;
+		SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON == ;
+	  	SE8->E8_BANCO+SE8->E8_AGENCIA+SE8->E8_CONTA .And.;
+	   SE8->E8_DTSALAT <= dDataBase)
+		If mv_par16 == 1			//Normal
+			nValor += xMoeda(SE8->E8_SALATUA,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+		ElseIf mv_par16 == 2   //Conciliado
+			nValor += xMoeda(SE8->E8_SALRECO,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+		ElseIf mv_par16 == 3   //Nao Conciliado
+			nValor += xMoeda(SE8->E8_SALATUA-SE8->E8_SALRECO,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+		EndIf
+		dbSkip()
+	Enddo
+	If mv_par15 == 1 // Se considera limite de credito
+		nLimCred := xMoeda(SA6->A6_LIMCRED,If(cPaisLoc=="BRA",1,Max(SA6->A6_MOEDA,1)),mv_par02)
+	Endif	
+
+	//valida a impressao de banco sem movimentacao, de acordo com o resultado do ponto de entrada FA140MVB
+	If !(lSldZera .And. nValor == 0) .AND. (Iif(lMovBco,nValor+nLimCred != 0,.T.))
+		If lFirst
+			@ li,0 PSAY OemToAnsi(STR0016)  //"Disponibilidade imediata"
+			lFirst := .f.
+		EndIf
+		li++
+		@li,	0 PSAY SA6->A6_NREDUZ + "  (" + SA6->A6_COD + ")" +;
+			Space(6)+"  AG: " + SA6->A6_AGENCIA + "  C/C: " +;
+			SA6->A6_NUMCON
+		@li,176 PSAY nValor	Picture tm(nValor,22,nDecs)
+		If mv_par15 == 1
+			li++
+			@li,0 PSAY OemToAnsi(STR0027)+Replicate(".",134)  //"Limite de Credito: "
+			@li,176 PSAY nLimCred Picture tm(nLimCred,22,nDecs)
+		Endif			
+	Endif
+	nDispon += (nValor+nLimCred)
+
+	dbSelectArea("SA6")
+	// Se emitido por empresa e o SA6 for Exclusivo, posiciono na proxima conta diferenciada
+	// ja que a rotina ja aglutinou os saldos de contas identicas (Bco/Age/Cta) que existam 
+	// nas diferentes filiais
+	If mv_par03 = 2 .and. !Empty(xFilial("SA6"))
+		// Vai para proximo bco+agencia+conta, caso a data do saldo seja maior que a data do saldo
+		// atual e o bco+agencia+conta sejam os mesmos do registro atual do SE8.
+		SA6->(MsSeek(IncLast(SA6->A6_COD+SA6->A6_AGENCIA+SA6->A6_NUMCON),.T.))
+	Else
+		dbGoTo(nRegSa6)
+		SA6->(dbSkip())
+	Endif
+	lFirst := .f.
+EndDO
+
+IF (nRegSa6 != 0)
+	li += 2
+	@li, 0 PSAY OemToAnsi(STR0017) +Replicate(".",135)  //"Total Disponivel "
+	@li,176 PSAY nDispon	PicTure tm(nDispon,22,nDecs)
+EndIF
+
+IF !lFirst
+	li++
+EndIF
+
+lFirst := .T.
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Titulos vencidos - a receber e a pagar						 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If mv_par06 == 1	 // Considera titulos em atraso
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Soma Contas a pagar vencida pela data de Vencimento			  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+#IFDEF TOP
+	IF TcSrvType() != "AS/400" 
+		cOrdSE2 := SqlOrder(SE2->(Indexkey()))
+		cRecPagAnt := FormatIn( MVPAGANT, "/" )
+		aStru := SE2->(DbStruct())
+		cQuery := ""
+		aEval(aStru,{|x| cQuery += ","+AllTrim(x[1])})
+		cQuery := "SELECT  " +SubStr(cQuery,2) + ", R_E_C_N_O_ RECNOSE2 "
+		cQuery += " FROM " + RetSqlName("SE2")
+		If mv_par03 == 1
+			cQuery += " WHERE E2_FILIAL = '" + xFilial("SE2") + "'"
+		Else
+			cQuery += " WHERE E2_FILIAL between ' ' AND 'zz'"
+		Endif
+		cQuery += " AND E2_PREFIXO between '" + mv_par09 + "' AND '"+mv_par10 + "'"
+		cQuery += " AND E2_MOEDA IN " + StrTran(FormatIn(AllTrim(mv_par08),,1),"'","")
+		cQuery += " AND E2_VENCREA <= '" + Dtos(dDataBase-1) +"'"
+		If cPaisLoc=="BRA"
+			cQuery += " AND E2_TIPO NOT IN " + cRecPagAnt
+		EndIf
+		If mv_par11 == 2
+			cQuery += " AND E2_SALDO > 0 "
+		Endif
+		If mv_par12 == 2
+			cQuery += " AND E2_MOEDA = " + Str(nMoeda,2)
+		Endif
+		cQuery += " AND E2_FLUXO <> 'N'"
+		//Considerar ou nao titulos com emissao posterior a database
+		If mv_par14 == 2
+			cQuery += " AND E2_EMIS1 <= '"+Dtos(dDataBase) +"'"
+		Endif
+		cQuery += " AND D_E_L_E_T_ = ' '"
+		cQuery += " ORDER BY " + cOrdSE2
+		
+		cQuery := ChangeQuery(cQuery)
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"E2VENC",.T.,.T.)
+		aEval(aStru, {|e| If(e[2]!= "C", TCSetField("E2VENC", e[1], e[2],e[3],e[4]),Nil)})
+		SetRegua(RecCount())
+		While ! E2VENC->(EOF())
+			IncRegua()
+			SE2->(MsGoto(E2VENC->RECNOSE2))
+			If mv_par11 == 1
+				nSaldo:=SaldoTit(E2VENC->E2_PREFIXO,E2VENC->E2_NUM,E2VENC->E2_PARCELA,E2VENC->E2_TIPO,E2VENC->E2_NATUREZA,"P",E2VENC->E2_FORNECE,mv_par02,E2VENC->E2_VENCREA,dDataBase,E2VENC->E2_LOJA,,If(cPaisLoc=="BRA",E2VENC->E2_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(E2VENC->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo:=xMoeda((E2VENC->E2_SALDO+E2VENC->E2_SDACRES-E2VENC->E2_SDDECRE),E2VENC->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",E2VENC->E2_TXMOEDA,0))
+			EndIf
+            If cPaisLoc<>"BRA"
+	            If E2VENC->E2_TIPO $ MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+					nApagVenc -= nSaldo
+				Else
+					nApagVenc += nSaldo
+				Endif
+            Else
+            
+	 			If E2VENC->E2_TIPO $ MVABATIM .or. E2VENC->E2_TIPO $ MV_CPNEG
+					nApagVenc -= nSaldo
+				Else
+					nApagVenc += nSaldo
+				Endif
+			EndIf
+			E2VENC->(dbSkip())
+		Enddo
+		E2VENC->(dbCloseArea())
+		dbSelectArea("SE2")
+	Else
+#ENDIF
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Soma Contas a pagar vencida pela data de Vencimento			  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dDataVenc := dDataBase-1
+		
+		dbSelectArea("SE2")
+		If mv_par03 == 1
+			If lFirst
+				RetIndex("SE2")
+			EndIf
+			dbSelectArea("SE2")
+			SE2->(dbSetOrder(3))
+			SE2->(dbSeek(cFilial+DTOS(CTOD("01/01/60","ddmmyy")) ,.t.))
+		Else
+			dbGoTop()
+		EndIf
+		
+		While ! SE2->(EOF()) .And. SE2->E2_VENCREA <= dDataVenc
+			
+			IF mv_par03 == 1 .and. SE2->E2_FILIAL != cFilial
+				Exit
+			EndIf
+			
+			If SE2->E2_TIPO $ MVPAGANT .And. cPaisLoc=="BRA"
+				SE2->(dbSkip())
+				Loop
+			EndIf
+			
+			If ! ( AllTrim(Str(SE2->E2_MOEDA,2)) $ mv_par08 )
+				dbSkip()
+				Loop
+			EndIf
+			
+			If SE2->E2_SALDO == 0 .and. IIf(mv_par11==1,SE2->E2_BAIXA <= dDataBase,.T.)
+				SE2->(dbSkip())
+				Loop
+			EndIf
+			
+			IF SE2->E2_PREFIXO < mv_par09 .or. SE2->E2_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+				SE2->(dbSkip())
+				Loop
+			EndIF
+			
+			If SE2->E2_FLUXO == "N" .or. (SE2->E2_EMIS1 > dDataBase .and. mv_par14 == 2)
+				dbSkip()
+				Loop
+			EndIf
+			
+	        If mv_par12 = 2
+	           If SE2->E2_MOEDA != nMoeda   
+	              SE2->(dbSkip())
+	              Loop
+	           EndIf
+	        EndIf
+		
+			If mv_par11 == 1
+				nSaldo:=SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZA,"P",SE2->E2_FORNECE,mv_par02,SE2->E2_VENCREA,dDataBase,SE2->E2_LOJA,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(SE2->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo:=xMoeda((SE2->E2_SALDO+SE2->E2_SDACRES-SE2->E2_SDDECRE),SE2->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+			EndIf
+			
+			If SE2->E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+				nApagVenc -= nSaldo
+			Else
+				nApagVenc += nSaldo
+			EndIf
+			SE2->(dbSkip())
+		EndDo
+#IFDEF TOP
+	Endif
+#ENDIF
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Contas a receber vencida pela data de Vencimento		³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+#IFDEF TOP
+	IF TcSrvType() != "AS/400" 
+		cRecPagAnt := FormatIn( MVRECANT + "/" + MVIRF, "/" )
+		cOrdSE1 := SqlOrder(SE1->(Indexkey()))
+		aStru := SE1->(DbStruct())
+		cQuery := ""
+		aEval(aStru,{|x| cQuery += ","+AllTrim(x[1])})
+		cQuery := "SELECT  " +SubStr(cQuery,2) + ", R_E_C_N_O_ RECNOSE1 "
+		cQuery += " FROM " + RetSqlName("SE1")
+		If mv_par03 == 1
+			cQuery += " WHERE E1_FILIAL = '" + xFilial("SE1") + "'"
+		Else
+			cQuery += " WHERE E1_FILIAL between ' ' AND 'zz'"
+		Endif
+		cQuery += " AND E1_PREFIXO between '" + mv_par09 + "' AND '"+mv_par10 + "'"
+		cQuery += " AND E1_MOEDA IN " + StrTran(FormatIn(AllTrim(mv_par08),,1),"'","")
+		cQuery += " AND (E1_VENCREA <= '" + Dtos(dDataBase-1) +"')"
+		//cQuery += " OR (E1_MOVIMEN <> ' ' AND E1_MOVIMEN <= '" + Dtos(dDataBase-1) + "'))"
+		If  cPaisLoc=="BRA"
+			cQuery += " AND E1_TIPO NOT IN " + cRecPagAnt
+		EndIf
+		cQuery += " AND E1_SITUACA NOT IN ('2','7')"
+		If mv_par11 == 2
+			cQuery += " AND E1_SALDO > 0 "
+		Endif
+		If mv_par12 == 2
+			cQuery += " AND E1_MOEDA = " + Str(nMoeda,2)
+		Endif
+		cQuery += " AND E1_FLUXO <> 'N'"
+		//Considerar ou nao titulos com emissao posterior a database
+		If mv_par14 == 2
+			cQuery += " AND E1_EMISSAO <= '"+Dtos(dDataBase) +"'"
+		Endif
+		cQuery += " AND D_E_L_E_T_ = ' '"
+		cQuery += " ORDER BY " + cOrdSE1
+		
+		cQuery := ChangeQuery(cQuery)
+		dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),"E1VENC",.T.,.T.)
+		aEval(aStru, {|e| If(e[2]!= "C", TCSetField("E1VENC", e[1], e[2],e[3],e[4]),Nil)})
+		SetRegua(RecCount())	
+		While ! E1VENC->(EOF())
+			IncRegua()
+		   SE1->(MsGoto(E1VENC->RECNOSE1))
+			If mv_par11 == 1
+				nSaldo := SaldoTit(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,E1VENC->E1_TIPO,E1VENC->E1_NATUREZA,"R",E1VENC->E1_CLIENTE,mv_par02,E1VENC->E1_VENCREA,dDataBase,E1VENC->E1_LOJA,,If(cPaisLoc=="BRA",E1VENC->E1_TXMOEDA,0), mv_par17)
+				
+				IF GetMv("MV_BR10925")== "1" .and. E1VENC->E1_TIPO $ "PIS|COF|CSL" .and. E1VENC->E1_BAIXA <= dDatabase // Quando o parametro MV_BR10925 estiver igual a 1 - Baixa
+					nSaldo -= E1VENC->E1_VALOR
+				Endif
+				
+				IF E1VENC->E1_TIPO $ MVABATIM .AND. E1VENC->E1_BAIXA <= dDatabase  //Quando se trata de impostos (abatimento) o saldotit não funciona corretamente por nao tratar tais movimentos de baixa.
+					nSaldo -= E1VENC->E1_VALOR
+				Endif
+
+				IF E1VENC->(E1_PIS+E1_CSLL+E1_COFINS) > 0 .AND. mv_par13 == 1 // Reteve impostos
+					nSaldo -= SomaAbat(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,"R",mv_par02,,E1VENC->E1_CLIENTE,E1VENC->E1_LOJA,,E1VENC->E1_EMISSAO)
+				Endif
+				
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(E1VENC->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo   := xMoeda((E1VENC->E1_SALDO+E1VENC->E1_SDACRES-E1VENC->E1_SDDECRE),E1VENC->E1_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",E1VENC->E1_TXMOEDA,0))
+
+				IF E1VENC->(E1_PIS+E1_CSLL+E1_COFINS) > 0 .AND. mv_par13 == 1 // Reteve impostos
+					nSaldo -= SomaAbat(E1VENC->E1_PREFIXO,E1VENC->E1_NUM,E1VENC->E1_PARCELA,"R",mv_par02,,E1VENC->E1_CLIENTE,E1VENC->E1_LOJA,,E1VENC->E1_EMISSAO)
+				Endif
+			EndIF
+
+			// Se titulo do Template GEM
+			If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+				If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+					SE1->E1_VALOR == nSaldo //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+					nSaldo += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+				EndIf
+			EndIf
+
+			If E1VENC->E1_SALDO > 0
+			If cPaisLoc<>"BRA"
+				IF Alltrim(E1VENC->E1_TIPO) $  MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+					nArecVenc -= nSaldo
+				Else
+					nArecVenc += nSaldo
+				EndIf
+			Else
+			
+				IF E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nArecVenc -= nSaldo
+				Else
+					nArecVenc += nSaldo
+				EndIf
+			EndIf
+			Else    
+				If cPaisLoc<>"BRA"
+					IF Alltrim(E1VENC->E1_TIPO) $  MV_CRNEG+"/"+MV_CPNEG+"/"+MVIRABT+"/"+MVCSABT+"/"+MVCFABT+"/"+MVPIABT+"/"+MVABATIM+"/"+MVRECANT+"/"+MVPAGANT
+						nAcumRc -= nSaldo
+					Else
+						nAcumRc += nSaldo
+					EndIf
+				Else
+					IF E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+						nAcumRc -= nSaldo
+					Else
+						nAcumRc += nSaldo
+					EndIf
+				EndIf			
+	
+			Endif          
+			
+			//Quando o parametro mv_par19 = 2 e o titulo tiver estorno ele nao deve ser exibido no relatorio.
+			If mv_par19 == 1 .or. (mv_par19 == 2 .and. ListaES(xFilial("SE1")+SE1->E1_PREFIXO+SE1->E1_NUM+SE1->E1_PARCELA)) 
+			 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			 //³ Impressao dos titulos baixados p/ recebimento futuro.		  ³
+			 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			 If nSaldo <> 0  .And. E1VENC->E1_SALDO == 0
+			  	If li > 58
+					cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+				EndIf
+				If !lImpFut
+					li++
+					@li,0 PSAY STR0045 + Replicate("-",159)	//"Títulos Baixados com Previsão de Movimentação Bancária Futura"
+					li++
+					lImpFut := .T.
+				EndIf
+
+				@li, 0 PSAY E1VENC->E1_VENCREA
+				@li, 10 PSAY IIf(!Empty(E1VENC->E1_VENCORI),E1VENC->E1_VENCORI,E1VENC->E1_VENCTO)
+				@li, 21 PSAY E1VENC->E1_PREFIXO
+				@li, 25 PSAY E1VENC->E1_NUM+(IIF(!EMPTY(E1VENC->E1_PARCELA),"-",""))+E1VENC->E1_PARCELA
+				@li, 40 PSAY E1VENC->E1_TIPO
+				@li, 44 PSAY E1VENC->E1_EMISSAO
+				@li, 55 PSAY E1VENC->E1_CLIENTE
+				@li, 64 PSAY SubStr(E1VENC->E1_NOMCLI,1,25)
+				@li, 72 PSAY If(E1VENC->E1_SALDO == 0,STR0046,SubStr(E1VENC->E1_HIST,1,25))		//"Tit.Baixado p/Rec. Futuro"
+				@ li,163 PSAY nSaldo Picture tm(nSaldo,22,nDecs)
+			  	If E1VENC->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nDispon  -= nSaldo
+				   nTotFutR -= nSaldo
+				Else	
+					nDispon  += nSaldo
+					nTotFutR += nSaldo
+				EndIf
+				@ li,186 PSAY nDispon   Picture tm(nDispon,22,nDecs)
+				li ++
+			 EndIf
+			Endif
+			
+			E1VENC->(dbSkip())
+		Enddo
+		@li,0 PSAY Replicate("-",220)
+		E1VENC->(dbCloseArea())
+		dbSelectArea("SE1")
+	Else	
+#ENDIF
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Soma Contas a receber vencida pela data de Vencimento			  ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		dbSelectArea("SE1")
+		If mv_par03 == 1
+			If lFirst
+				RetIndex("SE1")
+			EndIf
+			dbSelectArea("SE1")
+			SE1->(dbSetOrder(7))
+			SE1->(dbseek(cFilial+DTOS(CTOD("01/01/60","ddmmyy")),.T.))
+		Else
+			dbGoTop()
+		EndIf
+		
+		While ! SE1->(EOF()) .And. (SE1->E1_VENCREA <= dDataBase-1) .Or. (!Empty(SE1->E1_MOVIMEN) .And. SE1->E1_MOVIMEN <= dDataBase-1)
+			
+			IF mv_par03 == 1 .and. cFilial != SE1->E1_FILIAL
+				Exit
+			EndIf
+			
+			If SE1->E1_TIPO $ MVRECANT .And. cPaisLoc=="BRA"
+				SE1->(dbSkip())
+				Loop
+			EndIf
+			
+			IF SE1->E1_PREFIXO < mv_par09 .or. SE1->E1_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+				SE1->(dbSkip())
+				Loop
+			EndIF
+			
+			If ! ( AllTrim(Str(SE1->E1_MOEDA,2)) $ mv_par08 )
+				dbSkip( )
+				Loop
+			EndIf
+			
+			If SE1->E1_FLUXO == "N" .or. (SE1->E1_EMISSAO > dDatabase .and. mv_par14 == 2)
+				dbSkip()
+				Loop
+			EndIf
+			
+		
+	        If mv_par12 = 2
+	           If SE1->E1_MOEDA != nMoeda   
+	              SE1->(dbSkip())
+	              Loop
+	           EndIf
+	        EndIf
+			
+			If mv_par11 == 1
+				nSaldo := SaldoTit(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_NATUREZA,"R",SE1->E1_CLIENTE,mv_par02,SE1->E1_VENCREA,dDataBase,SE1->E1_LOJA,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0), mv_par17)
+			Else
+				// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+				lTxMoeda := SM2->(MsSeek(SE1->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+				nSaldo   := xMoeda((SE1->E1_SALDO+SE1->E1_SDACRES-SE1->E1_SDDECRE),SE1->E1_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0))
+			EndIf
+
+			// Se titulo do Template GEM
+			If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+				If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+					SE1->E1_VALOR == nSaldup //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+					nSaldo += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+				EndIf
+			EndIf
+			
+			If SE1->E1_SALDO > 0
+				IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nArecVenc -= nSaldo
+				Else
+					nArecVenc += nSaldo
+				EndIf
+			Else    
+				IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nAcumRc -= nSaldo
+				Else
+					nAcumRc += nSaldo
+				EndIf
+			EndIf
+			
+			//Quando o parametro mv_par19 = 2 e o titulo tiver estorno ele nao deve ser exibido no relatorio.
+			If mv_par19 == 1 .or. (mv_par19 == 2 .and. ListaES(xFilial("SE1")+SE1->E1_PREFIXO+SE1->E1_NUM+SE1->E1_PARCELA))
+			 //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			 //³ Impressao dos titulos baixados p/ recebimento futuro.		  ³
+			 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			 If nSaldo <> 0  .And. SE1->E1_SALDO == 0
+				If li > 58
+					cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+				EndIf
+				If !lImpFut
+					li++
+					@li,0 PSAY STR0045 + Replicate("-",159)	//"Títulos Baixados com Previsão de Movimentação Bancária Futura"
+					li++
+					lImpFut := .T.
+				EndIf
+
+				@li, 0 PSAY SE1->E1_VENCREA
+				@li, 11 PSAY IIf(!Empty(SE1->E1_VENCORI),SE1->E1_VENCORI,SE1->E1_VENCTO)
+				@li, 21 PSAY SE1->E1_PREFIXO
+				@li, 25 PSAY SE1->E1_NUM+(IIF(!EMPTY(SE1->E1_PARCELA),"-",""))+SE1->E1_PARCELA
+				@li, 40 PSAY SE1->E1_TIPO
+				@li, 44 PSAY SE1->E1_EMISSAO
+				@li, 55 PSAY SE1->E1_CLIENTE
+				@li, 64 PSAY SubStr(SE1->E1_NOMCLI,1,25)
+				@li, 92 PSAY If(SE1->E1_SALDO == 0,STR0046,SubStr(SE1->E1_HIST,1,25))		//"Tit.Baixado p/Rec. Futuro"
+				@ li,163 PSAY nSaldo Picture tm(nSaldo,22,nDecs)
+			  	If SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+					nDispon  -= nSaldo
+				   nTotFutR -= nSaldo
+				Else	
+					nDispon  += nSaldo
+					nTotFutR += nSaldo
+				EndIf
+				@ li,186 PSAY nDispon   Picture tm(nDispon,22,nDecs)
+				li ++
+			 EndIf	
+			Endif
+			 
+			SE1->(dbSkip())
+		EndDo
+		@li,0 PSAY Replicate("-",220)
+#IFDEF TOP
+	Endif
+#ENDIF		
+	If nArecVenc # 0 .or. nApagVenc # 0
+		nDispon += nArecVenc
+		nDispon -= nApagVenc
+		li++
+		@ li,000 PSAY OemToAnsi(STR0018)  //"Total de Titulos Vencidos"
+		@ li,130 PSAY nApagVenc Picture tm(nApagVenc,22,nDecs)
+		@ li,153 PSAY nArecVenc Picture tm(nArecVenc,22,nDecs)
+		@ li,176 PSAY nDispon   Picture tm(nDispon,22,nDecs)
+		li ++
+	Endif
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma as Comissoes. Os criterios de selecao dos registros foram³
+//³determinados no instante da criacao do indice condicional.	  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+if mv_par07 == 1
+	DbSelectArea("SE3")
+	dbGoTop()
+	While !Eof() .and. SE3->E3_DATA <= dDataBase
+		nComissoes += xMoeda(SE3->E3_COMIS,1,mv_par02)
+		dbSkip()
+	End
+	If nComissoes # 0
+		li ++
+		nDispon -= nComissoes
+		@ li,000 PSAY OemToAnsi(STR0019)  //"Total de Comissoes A Pagar"
+		@ li,130 PSAY nComissoes Picture tm(nComissoes,22,nDecs)
+		@ li,176 PSAY nDispon 	Picture tm(nDispon,22,nDecs)
+		li++
+	Endif
+Endif
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Acessa titulos iniciais												  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+nDias := (dDataAte-dDataBase)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Controle da Regua 														  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+SetRegua(nDias)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Verifica Pedidos de Compra e de Venda								  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+If mv_par04 == 1
+	fc020Venda( mv_par08, /*cAliasPv*/, /*aTotais*/, /*lRegua*/, mv_par02, /*aPeriodo*/, /*cFilIni*/, /*cFilFin*/ )
+Endif
+
+If mv_par05 == 1
+	fc020Compra(/*cAliasPc*/,/*aTotais*/,/*lRegua*/,mv_par02,/*aPeriodo*/,/*cFilIni*/,/*cFilFin*/, /*cPedidos*/)
+Endif
+lDataInf := .F.
+lAchouUm := .F.
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Soma Contas a Receber pela data de Vencimento					  ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+For j := 1 To nDias
+	
+	dDataVenc := dDataBase+j-1
+	
+	lAchou := .F.
+	dbSelectArea("SE1")
+	
+	If mv_par03 == 1
+		dbSetOrder(7)
+		dbseek(cFilial+DTOS(dDataVenc))
+	Else
+		dbSetOrder( nIndexSE1 )
+		dbSeek(DTOS(dDataVenc))
+	Endif
+	
+	IncRegua()
+	
+	While !Eof() .And. SE1->E1_VENCREA == dDataVenc
+		
+		IF mv_par03 == 1 .and. SE1->E1_FILIAL != cFilial
+			Exit
+		EndIF
+		
+		If SE1->E1_TIPO $ MVRECANT
+			dbSkip()
+			Loop                                          
+		Endif
+		
+		IF SE1->E1_PREFIXO < mv_par09 .or. SE1->E1_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+			SE1->(dbSkip())
+			Loop
+		EndIF
+		
+		If ! ( AllTrim(Str(SE1->E1_MOEDA,2)) $ mv_par08 )
+			dbSkip( )
+			Loop
+		EndIf
+		
+		If SE1->E1_FLUXO == "N" .or. (SE1->E1_EMISSAO > dDatabase .and. mv_par14 == 2)
+			dbSkip()
+			Loop
+		EndIf
+		
+		IF ( SE1->E1_SALDO = 0 .and. IIF( mv_par11 == 1, SE1->E1_BAIXA <= dDataBase, .T. )  ) .or. SE1->E1_SITUACA $ "27"
+			dbSkip()
+			Loop
+		EndIF
+	
+		IF mv_par13 == 2 .And. SE1->E1_TIPO $ MVABATIM
+			dbSkip()
+			Loop
+		End
+        If mv_par12 = 2
+           If SE1->E1_MOEDA != nMoeda   
+              SE1->(dbSkip())
+              Loop
+           EndIf
+        EndIf
+
+		If mv_par11 == 1
+			nSaldup := SaldoTit(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_TIPO,SE1->E1_NATUREZA,"R",SE1->E1_CLIENTE,mv_par02,SE1->E1_VENCREA,dDataBase,SE1->E1_LOJA,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0), mv_par17)
+		Else
+			// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+			lTxMoeda := SM2->(MsSeek(SE1->E1_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+			nSaldup  := xMoeda((SE1->E1_SALDO+SE1->E1_SDACRES-SE1->E1_SDDECRE),SE1->E1_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0))
+		End
+
+		// Se titulo do Template GEM
+		If HasTemplate("LOT") .And. SE1->(FieldPos("E1_NCONTR")) > 0 .And. !Empty(SE1->E1_NCONTR)
+			If SE1->E1_VALOR == SE1->E1_SALDO .Or.;
+				SE1->E1_VALOR == nSaldup //o titulo pode estar quitado(e1_saldo=0) mas valor em datas retroativas nao, portanto devera somar o valor do gem
+				nSaldup += CMDtPrc(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,SE1->E1_VENCREA,SE1->E1_VENCREA)[2]
+			EndIf
+		EndIf
+		
+		dbSelectArea("SE1")	 
+		
+		If mv_par03 == 1
+			dbSetOrder(7)
+		Endif
+		
+		IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+			nDispon-=nSalDup
+		Else
+			nDispon+=nSalDup
+		EndIf
+		
+		IF li > 58
+			cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+		EndIf
+		
+		li++
+		IF !lAchou
+		        
+			dDataTrab := SE1->E1_VENCREA
+		
+			If SE1->E1_SITUACA <> "0FG"		// Situacoes que nao considera dias de retencao
+			                                                     
+				dDataVcOri := SE1->E1_VENCTO
+			                                
+				//Verifico se o proximo dia util apos o vencimento eh igual ao vencto real do titulo
+				//Se for igual e o titulo estiver em cobranca, aplico os dias de retencao do banco
+				//Se for diferente e o titulo estiver em cobranca, quer dizer que ja foram aplicados os dias de retencao
+				//logo nao aplico novamente.
+				If DtoS( DataValida( dDataVcOri ) ) == DtoS( dDataTrab )
+
+					// Posiciona no banco para obter dias de retencao
+					SA6->( dbSetOrder( 1 ) )
+					SA6->( MsSeek( xFilial("SA6") + SE1->( E1_PORTADO + E1_AGEDEP + E1_CONTA ) ) )
+					
+					// Dias de retencao do banco em que o titulo esta
+					nDiasRet := SA6->A6_RETENCA
+
+					// Calcula proxima data valida (nao feriado) adicionados os dias de retencao
+					For nX := 1 To nDiasRet                         
+						dDataTrab := DataValida( dDataTrab + 1, .T. )
+					Next
+
+				EndIf
+		                         
+			EndIf
+		
+			@li, 0 PSAY dDataTrab
+		EndIf
+		@li, 11 PSAY IIf(!Empty(SE1->E1_VENCORI),SE1->E1_VENCORI,SE1->E1_VENCTO)		
+		@li, 21 PSAY SE1->E1_PREFIXO
+		@li, 25 PSAY SE1->E1_NUM+(IIF(!EMPTY(SE1->E1_PARCELA),"-",""))+SE1->E1_PARCELA
+		@li, 40 PSAY SE1->E1_TIPO
+		@li, 44 PSAY SE1->E1_EMISSAO
+		@li, 55 PSAY SE1->E1_CLIENTE
+		@li, 64 PSAY SubStr(SE1->E1_NOMCLI,1,25)
+		@li, 92 PSAY SubStr(SE1->E1_HIST,1,25)
+		nAbatim := 0 
+		If mv_par13 == 2
+			//Quando considerar Titulos com emissao futura, eh necessario
+			//colocar-se a database para o futuro de forma que a Somaabat()
+			//considere os titulos de abatimento
+			If mv_par14 == 1
+				dOldData := dDataBase
+				dDataBase := CTOD("31/12/40")
+			Endif
+
+			nAbatim := SomaAbat(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,"R",mv_par02,,SE1->E1_CLIENTE,SE1->E1_LOJA)
+
+			If mv_par14 == 1
+				dDataBase := dOldData
+			Endif
+
+		Endif	
+		nSalDup -= nAbatim
+		nDispon -= nAbatim
+		// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+		lTxMoeda := SM2->(MsSeek(dDataVenc)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+		@li,117 PSAY (xMoeda(SE1->E1_VALOR+SE1->E1_ACRESC-SE1->E1_DECRESC-nAbatim,SE1->E1_MOEDA,mv_par02,If(lTxMoeda,dDataVenc,dDataBase),,If(cPaisLoc=="BRA",SE1->E1_TXMOEDA,0)))- (FaDescFin("SE1",,SE1->E1_VALOR,SE1->E1_MOEDA)) Picture PesqPict("SE1","E1_VALOR",22,mv_par02)           //leandro
+		@li,163 PSAY nSalDup	Picture tm(nSalDup,22,nDecs)
+		@li,186 PSAY nDispon	Picture tm(nDispon,22,nDecs)
+		IF mv_par02 != 1 .and. !lAchou
+			@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+			dDataImp:=dDataVenc
+		EndIf
+		lAchou:=.t.
+		dbSelectArea("SE1")
+		IF SE1->E1_TIPO $ MVABATIM+"/"+MV_CRNEG
+			nTotTitR -= nSalDup
+		Else
+			nTotTitR += nSalDup
+		End
+		dbSkip()
+	EndDO
+If cIpProj =="S"
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe aplica‡„o a ser resgatada no dia				³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea("SEG")
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(cFilial+Dtos(dDataVenc))
+	Else
+		dbSetOrder(nIndexSEG)
+		dbSeek(Dtos(dDataVenc))
+	Endif
+	
+	lAchou :=.f.
+	While !Eof() .And. EG_DATARES == dDataVenc
+		
+		IF mv_par03 == 1 .and. EG_FILIAL != cFilial
+			Exit
+		End
+		
+		If SEG->EG_TIPO == "EMP"
+			dbSkip( )
+			Loop
+		End
+		nDiasInt	:= EG_DATARES-EG_DATA	//Dias de Intervalo
+		nJurDiario:= EG_TAXA/nDiasInt	  //Juros Diario
+		nValJuros := EG_VALOR+((EG_VALOR*nJurDiario)/100)*nDiasInt
+		nValGanho := nValJuros-EG_VALOR
+		nValJuros -= nValGanho*EG_IMPOSTO/100 //Impostos
+		IF mv_par02 == 1
+			nDispon += nValJuros
+		Else
+			dbSelectArea("SM2")
+			dbSeek( dDataVenc )
+			nDispon += nValJuros/&('SM2->M2_MOEDA'+cSuf)
+		EndIF
+		dbSelectArea("SEG")
+		li++
+			IF !lAchou
+				@li, 0 PSAY EG_DATARES
+			EndIF
+
+			@li,011 PSAY OemToAnsi(STR0021)+ EG_TIPO + " - " + EG_BANCO  //"Projecao de Resgate de Aplicacao "
+			@li,107 PSAY IIF(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf)) Picture tm(IIF(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf)),22,nDecs)
+			@li,153 PSAY IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))	  Picture tm(IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)),22,nDecs)
+			@li,176 PSAY nDispon		Picture tm(nDispon, 22,nDecs)
+
+			IF mv_par02!=1 .and. !lAchou
+				dbSelectArea("SM2")
+				dbSeek(dDataVenc)
+				@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+			EndIF
+			lAchou:=.T.
+		dbSelectArea("SEG")
+		nTotTitR	+= IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))
+		dbSkip()
+	EndDO
+	dbSelectArea("SEH")
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(xFilial("SEH")+"A")
+	Else
+		dbSetOrder(nIndexSEH)
+		dbSeek("A")
+	Endif
+
+	lAchou := .f.
+	While ( !Eof() .And.If(MV_PAR03==1,SEH->EH_FILIAL==xFilial("SEH"),.T.) .And.;
+				SEH->EH_STATUS == "A" )
+		If ( SEH->EH_APLEMP != "EMP" )
+			If ( Empty(SEH->EH_DATARES) .And. J==1 ) .Or.;
+				( SEH->EH_DATARES == dDataVenc )
+				nValJuros := SEH->EH_SALDO
+				If !SEH->EH_TIPO $ cAplCotas
+					aValAplic := Fa171Calc(	dDataVenc,,,,,,,, mv_par03 = 1)
+					nValJuros += aValAplic[5]-aValAplic[2]-aValAplic[3]-aValAplic[4]
+				Else
+					aValAplic := {0,0,0,0,0,0}
+					nAscan := Ascan(aAplicSeh, {|e|	e[1] == SEH->EH_CONTRAT .And.;
+													 		   e[2] == SEH->EH_BCOCONT .And.;
+															   e[3] == SEH->EH_AGECONT})
+					If nAscan > 0																	   
+						aValAplic :=	Fa171Calc(dDataVenc,SEH->EH_SLDCOTA,,,,SE9->E9_VLRCOTA,aAplicSeh[nAscan][6],(SEH->EH_SLDCOTA * aAplicSeh[nAscan][6]))
+					Endif	
+					nValJuros := xMoeda(aValAplic[1]-(aValAplic[2]+aValAplic[3]+aValAplic[4]),1,mv_par02)
+				Endif
+			Else
+				nValJuros := 0
+			EndIf
+			If ( nValJuros != 0 )
+				IF MV_PAR02 == 1
+					nDispon += (nValJuros)
+				Else
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek( dDataVenc )
+					nDispon += (nValJuros)/&('SM2->M2_MOEDA'+cSuf)
+				EndIf
+				li++
+				IF !lAchou
+					@li, 0 PSAY SEH->EH_DATARES
+				EndIF
+				@li,011 PSAY OemToAnsi(STR0021)+SEH->EH_TIPO+" - "+SEH->EH_BANCO  //"Projecao de Resgate de Aplicacao "
+				@li,107 PSAY If(MV_PAR02==1,SEH->EH_SALDO,If(SEH->EH_MOEDA > 1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf))) PICTURE TM(If(MV_PAR02==1,SEH->EH_SALDO,If(SEH->EH_MOEDA > 1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				@li,153 PSAY If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))	  PICTURE TM(If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				@li,176 PSAY nDispon		Picture tm(nDispon, 22,nDecs)
+				IF ( MV_PAR02 != 1 .And. !lAchou )
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek(dDataVenc)
+					@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+				EndIf
+			EndIf
+			lAchou:=.T.
+			nTotTitR	+= If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))
+
+			If dDataVenc < SEH->EH_DATA
+				dDataVenc := SEH->EH_DATA
+			EndIf
+		EndIf
+		dbSelectArea("SEH")
+		dbSkip()
+	EndDo
+Endif
+	dbSelectArea("SE2")
+	If mv_par03 == 1
+		If lFirst
+			RetIndex("SE2")
+		End
+		SE2->(dbSetOrder(3))
+		SE2->(dbSeek(cFilial+DTOS(dDataVenc) ,.t.))
+	Else
+		dbSetOrder( nIndexSE2 )
+		SE2->(dbSeek(DTOS(dDataVenc)),.t.)
+	End
+	
+	lAchou := .f.
+	While !Eof() .And. E2_VENCREA == dDataVenc
+		
+		IF mv_par03 == 1 .and. E2_FILIAL != cFilial
+			Exit
+		EndIF
+		
+		If SE2->E2_SALDO == 0 .and. IIf(mv_par11==1,SE2->E2_BAIXA <= dDataBase,.t.)
+			SE2->(dbSkip())
+			Loop
+		End
+		
+        If mv_par12 = 2
+           If SE2->E2_MOEDA != nMoeda   
+              SE2->(dbSkip())
+              Loop
+           EndIf
+        EndIf
+		
+		If mv_par11 == 1
+			nSaldup:=SaldoTit(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,SE2->E2_TIPO,SE2->E2_NATUREZA,"P",SE2->E2_FORNECE,mv_par02,SE2->E2_VENCREA,dDataBase,SE2->E2_LOJA,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0), mv_par17)
+		Else
+			// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+			lTxMoeda := SM2->(MsSeek(SE2->E2_VENCREA)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+			nSaldup:=xMoeda((SE2->E2_SALDO+SE2->E2_SDACRES-SE2->E2_SDDECRE),SE2->E2_MOEDA,mv_par02,,,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))
+		End
+		
+		IF mv_par13 == 2 .And. SE2->E2_TIPO $ MVABATIM
+			dbSkip()
+			Loop
+		End
+		If E2_TIPO $ MVPAGANT
+			dbSkip( )
+			Loop
+		Endif
+		
+		IF SE2->E2_PREFIXO < mv_par09 .or. SE2->E2_PREFIXO > mv_par10  //Do Prefixo ao Prefixo
+			SE2->(dbSkip())
+			Loop
+		EndIF
+		
+		If ! ( AllTrim(Str(SE2->E2_MOEDA,2)) $ mv_par08 )
+			dbSkip()
+			Loop
+		End
+		
+		If SE2->E2_FLUXO == "N" .or. (SE2->E2_EMIS1 > dDataBase .and. mv_par14 == 2)
+			dbSkip()
+			Loop
+		End
+		
+		dbSelectArea("SE2")
+		If mv_par03 == 1
+			dbSetOrder(3)
+		Endif
+		
+		IF E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+			nDispon+=nSalDup
+		Else
+			nDispon-=nSalDup
+		Endif
+		
+		//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+		//³Verifica se existe cheque sobre titulo e busca no  ³
+		//³SEF para verificar se cheque esta liberado para    ³
+		//³imprimir ou nao o titulo.                          ³
+		//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+		If SE2->E2_IMPCHEQ == "S" .And. lLibCheq
+			aAreaSE2 := GetArea()
+			dbSelectArea("SEF")
+			SEF->(dbSetOrder(3))      
+			SEF->(MsSeek(xFilial("SEF")+SE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO)))
+			While SEF->(!Eof()) .And. lChqLiber .And.; 
+					SEF->(EF_FILIAL+EF_PREFIXO+EF_TITULO+EF_PARCELA+EF_TIPO) ==;
+					xFilial("SEF")+SE2->(E2_PREFIXO+E2_NUM+E2_PARCELA+E2_TIPO)
+				If SEF->EF_ORIGEM = "FINA390TIT" .And. SEF->EF_LIBER == "S"
+					lChqLiber := .F.
+				EndIf
+				SEF->(dbSkip())
+			EndDo
+			RestArea(aAreaSE2)
+			If !lChqLiber
+				SE2->(dbSkip())
+				Loop
+			EndIf
+		EndIf
+  		
+		IF li > 58
+			cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+		Endif
+		
+		li++
+		IF !lAchou
+			@li, 0 PSAY SE2->E2_VENCREA
+		EndIF
+		@li, 11 PSAY SE2->E2_PREFIXO
+		@li, 15 PSAY SE2->E2_NUM+(IIF(!EMPTY(SE2->E2_PARCELA),"-",""))+SE2->E2_PARCELA
+		@li, 30 PSAY SE2->E2_TIPO
+		@li, 34 PSAY SE2->E2_EMISSAO
+		@li, 45 PSAY SE2->E2_FORNECEDOR
+		@li, 54 PSAY SubStr(SE2->E2_NOMFOR,1,25)
+		@li, 82 PSAY SubStr(SE2->E2_HIST,1,25)
+		nAbatim := 0
+		If mv_par13 == 2
+
+			//Quando considerar Titulos com emissao futura, eh necessario
+			//colocar-se a database para o futuro de forma que a Somaabat()
+			//considere os titulos de abatimento
+			If mv_par14 == 1
+				dOldData := dDataBase
+				dDataBase := CTOD("31/12/40")
+			Endif
+
+			nAbatim := SomaAbat(SE2->E2_PREFIXO,SE2->E2_NUM,SE2->E2_PARCELA,"P",mv_par02,,SE2->E2_FORNECE,SE2->E2_LOJA)
+
+			If mv_par14 == 1
+				dDataBase := dOldData
+			Endif
+
+		Endif	
+		nSaldup -= nAbatim
+		nDispon -= nAbatim      
+		If cPaisLoc <> "BRA" .And. (E2_TIPO $ MV_CPNEG	 .Or. ( SE2->E2_TIPO $ MVPAGANT .And. (!Empty(SE2->E2_ORDPAGO) .Or. cPaisLoc =="ARG")))
+			nVlrImp:= (SE2->E2_VALOR+SE2->E2_ACRESC-SE2->E2_DECRESC-nAbatim) * -1
+		Else
+			nVlrImp:= (SE2->E2_VALOR+SE2->E2_ACRESC-SE2->E2_DECRESC-nAbatim)
+		EndIf
+		// Verifica se existe a taxa na data do vencimento do titulo, se nao existir, utiliza a taxa da database
+		lTxMoeda := SM2->(MsSeek(dDataVenc)) .And. SM2->&("M2_MOEDA"+Alltrim(Str(mv_par02))) != 0
+		
+		@li,107 PSAY xMoeda(nVlrImp,SE2->E2_MOEDA,mv_par02,If(lTxMoeda,dDataVenc,dDataBase),,If(cPaisLoc=="BRA",SE2->E2_TXMOEDA,0))  Picture PesqPict("SE2","E2_VALOR",22,mv_par02)
+		IF cPaisLoc <> "BRA" .And. E2_TIPO $ MVPAGANT+"/"+MV_CPNEG	   
+			@li,130 PSAY nSalDup * -1 		Picture tm(nSalDup*-1,22,nDecs)
+		Else
+			@li,130 PSAY nSalDup 			Picture tm(nSalDup,22,nDecs)
+		Endif
+		@li,176 PSAY nDispon					Picture tm(nDispon,22,nDecs)
+		IF mv_par02!=1 .and. !lAchou
+			dbSelectArea("SM2")
+			dbSeek(dDataVenc)
+			@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+		EndIF
+		lAchou:=.T.
+		dbSelectArea("SE2")
+		IF E2_TIPO $ MVABATIM+"/"+MV_CPNEG
+			nTotTitP -= nSalDup
+		Else
+			nTotTitP += nSalDup
+		End
+		dbSkip()
+	End
+If cIpProj =="S"
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe emprestimo a pagar no dia.					  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea( "SEG" )
+	If mv_par03 == 1
+		dbSetOrder(2)
+		dbSeek(cFilial+Dtos(dDataVenc))
+	Else
+		dbSetOrder( nIndexSEG ) 
+		dbSeek(Dtos(dDataVenc))
+	Endif
+	
+	lAchou := .f.
+	While !Eof() .And. EG_DATARES == dDataVenc
+		
+		IF mv_par03 == 1 .and. EG_FILIAL != cFilial
+			Exit
+		End
+		
+		If SEG->EG_TIPO != "EMP"
+			dbSkip( )
+			Loop
+		End
+		
+		nDiasInt	:= EG_DATARES-EG_DATA	//Dias de Intervalo
+		nJurDiario:= EG_TAXA/nDiasInt	  //Juros Diario
+		nValJuros := EG_VALOR+((EG_VALOR*nJurDiario)/100)*nDiasInt
+		nValGanho := nValJuros-EG_VALOR
+		nValJuros -= nValGanho*EG_IMPOSTO/100 //Impostos
+		IF mv_par02 == 1
+			nDispon -= nValJuros
+		Else
+			dbSelectArea("SM2")
+			dbSeek( dDataVenc )
+			nDispon -= nValJuros/&('SM2->M2_MOEDA'+cSuf)
+		EndIF
+		dbSelectArea("SEG")
+		li++
+		IF !lAchou
+			@li, 0 PSAY EG_DATARES
+		EndIF
+		@li,011 PSAY OemToAnsi(STR0022)   + EG_TIPO + " - " + EG_BANCO  //"Projecao de Pagamento de Emprestimo "
+		@li,107 PSAY IIF(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf)) Picture tm(IIF(mv_par02==1,EG_VALOR,EG_VALOR/&('SM2->M2_MOEDA'+cSuf)),22,nDecs)
+		@li,130 PSAY IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))	  Picture tm(IIF(mv_par02==1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)),22,nDecs)
+		@li,176 PSAY nDispon		Picture tm(nDispon, 22,nDecs)
+		
+		IF mv_par02!=1 .and. !lAchou
+			dbSelectArea("SM2")
+			dbSeek(dDataVenc)
+			@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+		EndIF
+		
+		lAchou:=.T.
+		dbSelectArea("SEG")
+		nTotTitP	+= IIF(mv_par02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))
+		dbSkip()
+	End
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Verifica se existe emprestimo a pagar no dia.					  ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	dbSelectArea("SEH")
+	If ( MV_PAR03 == 1 )
+		dbSetOrder(2)
+		dbSeek(xFilial("SEH")+"A")
+	Else
+		dbSetOrder( nIndexSEH ) 
+		dbSeek("A")
+	Endif
+
+	lAchou := .f.
+	While ( !Eof() .And. If(MV_PAR03==1,SEH->EH_FILIAL==xFilial("SEH"),.T.) .And.;
+				SEH->EH_STATUS=="A" )
+		If ( SEH->EH_APLEMP == "EMP" )
+			If ( Empty(SEH->EH_DATARES) .And. J==1 ) .Or.;
+				( SEH->EH_DATARES == dDataVenc )
+            If(mv_par02 == 1)
+					nValJuros := xMoeda(SEH->EH_SALDO,SEH->EH_MOEDA,1)
+            Else
+            	nValJuros := SEH->EH_SALDO
+            EndIF
+				aValAplic := Fa171Calc(dDataVenc,,,,,,,, mv_par03 = 1)
+				If Len(aValAplic) > 0	
+					nValJuros += aValAplic[2,2]
+				Endif	
+			Else
+				nValJuros := 0
+			EndIf
+			If ( nValJuros != 0 )
+				If ( MV_PAR02 == 1 )
+					nDispon -= (nValJuros)
+				Else
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek( dDataVenc )
+					nDispon -= (nValJuros)
+				EndIf
+				li++
+				IF !lAchou
+					@li, 0 PSAY SEH->EH_DATARES
+				EndIf
+            If(SEH->EH_MOEDA > 1)
+            	nVlMoeda := &('SM2->M2_MOEDA' + CVALTOCHAR(SEH->EH_MOEDA))
+            Else
+            	nVlMoeda := 1
+            EndIf 
+				@li,011 PSAY OemToAnsi(STR0022)+SEH->EH_TIPO+" - "+SEH->EH_BANCO  //"Projecao de Pagamento de Emprestimo "
+				@li,107 PSAY If(MV_PAR02==1,SEH->EH_SALDO*nVlMoeda,If(SEH->EH_MOEDA > 1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf))) PICTURE TM(If(MV_PAR02==1,SEH->EH_SALDO*nVlMoeda,If(SEH->EH_MOEDA > 1,SEH->EH_SALDO,SEH->EH_SALDO/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				@li,130 PSAY If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))) PICTURE TM(If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf))),22,nDecs)
+				@li,176 PSAY nDispon		PICTURE TM(nDispon,22,nDecs)
+				If ( MV_PAR02!=1 .And. !lAchou )
+					dbSelectArea("SM2")
+					dbSetOrder(1)
+					dbSeek(dDataVenc)
+					@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) PICTURE TM(&('SM2->M2_MOEDA'+cSuf),10)
+				EndIf
+				
+			EndIf
+			lAchou:=.T.
+			nTotTitP	+= If(MV_PAR02==1,nValJuros,If(SEH->EH_MOEDA > 1,nValJuros,nValJuros/&('SM2->M2_MOEDA'+cSuf)))
+
+			If dDataVenc < SEH->EH_DATA
+				dDataVenc := SEH->EH_DATA
+			EndIf
+		EndIf
+		dbSelectArea("SEH")
+		dbSkip()
+	EndDo
+Endif
+	nEL:=0
+	IF Len(aVendas)>0
+		nEl:=Ascan(adVendas,dDataVenc)
+		If nEl > 0 .And. !lAchouUm
+			lAchouUm := .T.
+		Endif	
+		// Nao encontrou um pedido de venda na data atual e eh a primeira busca
+		If !lAchouUm .And. !lDataInf 
+			// Procura em uma data menor, apenas uma vez
+			nEl:=Ascan(adVendas,{|e| e <= dDataVenc} )
+			lDataInf := .T.
+		Endif
+	EndIF
+	lAchou := .f.
+	IF nEl != 0
+		li++
+		IF !lAchou
+			@li, 0 PSAY dDataVenc
+		EndIF
+		@li,11 PSAY OemToAnsi(STR0023)  //"Pedidos de Vendas"
+		nValor:=aVendas[nEl][2]
+		nEl++		
+		Do While nEl <= Len(aVendas) .And. aVendas[nEl,1] == dDataVenc
+			nValor += aVendas[nEl,2]
+			nEl++
+		EndDo
+		@li,153 PSAY nValor	  Picture tm(nValor,22,nDecs)
+		nDispon += nValor
+		@li,176 PSAY nDispon		Picture tm(nDispon, 22,nDecs)
+		IF mv_par02 != 1 .and. !lAchou
+			dbSelectArea("SM2")
+			Seek dDataVenc
+			@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+		EndIF
+		lAchou := .T.
+		nTotTitR += nValor
+	EndIF
+	
+	nEl:=0
+	
+	IF Len(aCompras)>0
+		nEl := Ascan(adCompras,dDataVenc)
+	EndIF
+	
+	lAchou := .f.
+	IF nEl != 0
+		li ++
+		IF !lAchou
+			@li, 0 PSAY dDataVenc
+		EndIF 
+		nValor:=0
+		For i:=1 to Len(aCompras)
+			If aCompras[i][1]==dDataVenc
+				nValor+= aCompras[I][2]
+			EndIf
+		Next i		
+		@li,11 PSAY OemToAnsi(STR0024)  //"Pedidos de Compras"	
+		@li,130 PSAY nValor	  Picture tm(nValor,22,nDecs)	   
+		
+		nDispon -= nValor
+		@li,176 PSAY nDispon		Picture tm(nDispon, 22,nDecs)
+		IF mv_par02 != 1 .and. ! lAchou
+			dbSelectArea("SM2")
+			Seek dDataVenc
+			@li,199 PSAY &('SM2->M2_MOEDA'+cSuf) Picture tm(&('SM2->M2_MOEDA'+cSuf),10)
+		EndIF
+		nTotTitP += nValor
+		lAchou := .T.
+	EndIF
+	
+	If nTotTitR !=0 .or. nTotTitP != 0
+		Li+=2
+		IF li > 58
+			cabec(titulo,cabec1,cabec2,nomeprog,tamanho,NumImp())
+		End
+		@Li,000 PSAY OemToAnsi(STR0025) +DTOC(dDataVenc)  //"Total Do Dia ---> "
+		@Li,130 PSAY nTotTitP 					  Picture Tm(nTotTitP,22,nDecs)
+		@Li,153 PSAY ntotTitR 					  Picture Tm(nTotTitR,22,nDecs)
+		@li,176 PSAY nDispon				      Picture tm(nDispon ,22,nDecs)
+		Li++
+	Endif
+	
+	nTotGTitR += nTotTitR
+	nTotGTitP += nTotTitP
+	nTotTitP := 0
+	nTotTitR := 0
+	
+Next j
+
+IF li != 80
+	Li++
+	@Li,000 PSAY OemToAnsi(STR0026)  //"Total Geral  --->"
+	@Li,130 PSAY nTotGTitP+nApagVenc					Picture Tm(nTotGTitP,22,nDecs)
+	@Li,153 PSAY ntotGTitR+nTotFutR+nArecVenc		Picture Tm(nTotGTitR,22,nDecs)
+	@li,176 PSAY nDispon									Picture tm(nDispon ,22,nDecs)
+	Li++
+	roda(cbcont,cbtxt,"G")
+EndIF
+// Contas a receber
+RetIndex("SE1")
+dbSelectArea("SE1")
+SE1->(dbSetOrder(1))
+SE1->(dbClearFilter())
+
+// Contas a pagar
+RetIndex("SE2")
+dbSelectArea("SE2")
+SE2->(dbSetOrder(1))
+SE2->(dbClearFilter())
+
+// Comissao de vendas
+RetIndex("SE3")
+dbSelectArea("SE3")
+SE3->(dbSetOrder(1))
+SE3->(dbClearFilter())
+
+// Movimentacao bancaria
+RetIndex("SE5")
+dbSelectArea("SE5")
+SE5->(dbSetOrder(1))
+SE5->(dbClearFilter())
+
+// Contas Corrente
+RetIndex("SA6")
+dbSelectArea("SA6")
+SA6->(dbSetOrder(1))
+SA6->(dbClearFilter())
+
+// Saldos bancarios
+RetIndex("SE8")
+dbSelectArea("SE8")
+SE8->(dbSetOrder(1))
+SE8->(dbClearFilter())
+
+// Controle de aplicacoes
+RetIndex("SEG")
+dbSelectArea("SEG")
+SEG->(dbSetOrder(1))
+SEG->(dbClearFilter())
+
+RetIndex("SEH")
+dbSelectArea("SEH")
+SEH->(dbSetOrder(1))
+SEH->(dbClearFilter())
+
+Ferase(cArqSEH+OrdBagExt())
+Ferase(cArqSEG+OrdBagExt())
+Ferase(cArqSE5+OrdBagExt())
+Ferase(cArqSE2+OrdBagExt())
+Ferase(cArqSE1+OrdBagExt())
+Ferase(cArqSE3+OrdBagExt())
+Ferase(cArqSE8+OrdBagExt())
+Ferase(cArqSA6+OrdBagExt())
+
+Set Device To Screen
+
+If aReturn[5] = 1
+	Set Printer To
+	dbCommitAll()
+	ourspool(wnrel)
+Endif
+MS_FLUSH()
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Programa  ³ListaES    ³ Autor ³ Andrea Verissimo      ³ Data ³16/12/2010³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄ--ÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡ao ³Essa funcao checa se o registro tem algum movimento bancario ³±±
+±±³          ³do tipo ES.                                                  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Retorno   ³.F. - em caso de nao listar o titulo pq ele tem ESTORNO.     ³±±
+±±³          ³.T. - listar o titulo pq nao tenho ESTORNO.                  ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³Nro da Filial, Prefixo, Numero, Parcela                      ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+Static Function ListaES(cChavES)
+Local cRetorno := .T.
+Local aArea    := GetArea()	     
+ dbSelectArea("SE5")
+ SE5->(dbSetOrder(7))
+ SE5->(Dbseek(cChavES,.t.))
+ While !EOF() .and. (xFilial("SE5")+SE5->E5_PREFIXO+SE5->E5_NUMERO+SE5->E5_PARCELA) = cChavES
+    If SE5->E5_TIPODOC = "ES"
+      cRetorno := .F. 
+      Exit  
+    Endif
+	 SE5->(Dbskip())
+ Enddo
+ dbCloseArea()
+ RestArea(aArea)
+Return (cRetorno)
+
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡…o	 ³Ajusta    ³ Autor ³ Márcio Menon	 		  ³ Data ³ 11/12/2006		³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Insere novas perguntas na tabela SX1 a Ajusta o Picture dos valores	³±±
+±±³          ³ no SX3                                                           	³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe e ³ 																		³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+Static Function Ajusta()
+
+Local aPergs 	:= {}
+Local aHelpPor	:= {}
+Local aHelpEng	:= {}
+Local aHelpSpa	:= {}
+
+Aadd( aHelpPor, "Selecione a data, 'Data da Baixa' ou ")
+Aadd( aHelpPor, "'Data de Crédito', para considerar na ")
+Aadd( aHelpPor, "composição do saldo do título, quando a ")
+Aadd( aHelpPor, "pergunta 'Compõem Saldo Retroativo' for ")
+Aadd( aHelpPor, "igual a 'Sim'.")
+Aadd( aHelpPor, "Exemplo: Título baixado em 30/03/2007, ")
+Aadd( aHelpPor, "com data de crédito em 31/03/2007. Se o ")
+Aadd( aHelpPor, "relatório for impresso em  30/03/2007 ")
+Aadd( aHelpPor, "com 'Compõem Saldo Retroativo' igual a ")
+Aadd( aHelpPor, "'Sim' e 'Compoe Saldo por' for igual a ")
+Aadd( aHelpPor, "'Data de Crédito', o título será ")
+Aadd( aHelpPor, "impresso.")
+
+Aadd( aHelpSpa, "Seleccione la fecha 'Fecha de la Baja' o ")
+Aadd( aHelpSpa, "'Fecha'de Credito' para considerar en ")
+Aadd( aHelpSpa, "la composicion del saldo del titulo. ")
+Aadd( aHelpSpa, "En cuanto a la pregunta 'Componen Saldo ")
+Aadd( aHelpSpa, "Retroactivo' es igual a 'Si'. Por ejemplo:")
+Aadd( aHelpSpa, "Titulo dado de baja el 30/03/2007, con ")
+Aadd( aHelpSpa, "fecha de credito del 31/03/2007. Si se ")
+Aadd( aHelpSpa, "imprime el informe el 30/03/2007 con ")
+Aadd( aHelpSpa, "'Componen Saldo Retroactivo' igual a ")
+Aadd( aHelpSpa, "'Si' y 'Compone Saldo por' es igual a ")
+Aadd( aHelpSpa, "'Fecha de Credito', se imprimira el ")
+Aadd( aHelpSpa, "titulo.")
+
+Aadd( aHelpEng, "Choose one of the dates 'Posting Date' or ")
+Aadd( aHelpEng, "'Credit Date' to be considered during ")
+Aadd( aHelpEng, "the bill balance composition, when the ")
+Aadd( aHelpEng, "question 'Compose Retroactive Balance' is ")
+Aadd( aHelpEng, "marked  'Yes'. Example: Bill posted on ")
+Aadd( aHelpEng, "3/30/07, with a credit date of 3/31/07. ")
+Aadd( aHelpEng, "If the report is printed on 3/30/07 with ")
+Aadd( aHelpEng, "'Compose Retroactive Balance' marked ")
+Aadd( aHelpEng, "'Yes' and  'Compose Balance by' is the ")
+Aadd( aHelpEng, "same as 'Credit Date', the bill will be ")
+Aadd( aHelpEng, "printed.")
+
+Aadd(aPergs,{"Compoe Saldo por?","¿Compone Saldo por?","Set Balance by?","mv_chh","N",1,0,1,"C","","mv_par17","Data da Baixa","Fecha de Cancel","Posting Date","","","Data de Credito","Fecha de Credit","Credit Date","","","Data Digitacao","Fch.Digitacion","Entry Date","","","","","","","","","","","","","","","",aHelpPor,aHelpEng,aHelpSpa})
+Aadd(aPergs,{"Considera Saldos Zerados?","Considera Saldos Zerados?","Considera Saldos Zerados?","mv_ch18","N",1,0,2,"C","","mv_par18", "Sim"         ,"Si"           ,"Yes","","","Nao","No","No","" ,"","","" ,"","","","","","","","","","","","    "," ","   ","S",""})    
+Aadd(aPergs,{"Lista Estorno?","Lista Reversion?","List Reversal?","mv_ch19","N",1,0,2,"C","","mv_par19", "Sim"         ,"Si"           ,"Yes","","","Nao","No","No","" ,"","","" ,"","","","","","","","","","","","    "," ","   ","S",""})    
+
+AjustaSx1("FIN140",aPergs)
+
+//Ajuste do SX3
+dbSelectArea("SX3")
+dbSetOrder(2)
+
+If dbSeek("E2_VALOR")
+	Reclock("SX3")
+	Replace X3_PICTURE With "@E 999,999,999,999,999.99"
+	MsUnlock()
+Endif
+
+Return    

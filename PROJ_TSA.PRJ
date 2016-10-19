@@ -1,0 +1,1305 @@
+Group Projetos TSA
+   Version=7.0
+   VSSDB=
+   HasProperties=1
+   Properties
+      BeforeApply=
+      AfterApply=
+      Icon=
+      ID=
+      Version=
+      PalmName=
+      OutPut=
+   End
+   ProjectsCount=13
+   Project Compras
+      FoldersCount=8
+      Folder Arquivos
+         VSSPath=Arquivos
+         FilesCount=7
+         File \Protheus11\Projetos\COM\A100F4PC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\MATR110.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Mt100Agr.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Pedcom.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\MA103BUT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\A103F4IPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\PDCTSA.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=3
+         File \Protheus11\Projetos\COM\VITEMPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Validacoes\VORDCPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Validacoes\VALINFAL.PRW
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=11
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MA120BUT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT103NAT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\SF1100I.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\Mt100LOk.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT120APV.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT130FOR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT097END.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT120BRW.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MTA097MNU.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\Ponto de Entrada\MT097GRV.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\WFW120P.prw
+             Type=T
+         End
+      End
+      Folder Gatilhos
+         VSSPath=Gatilhos
+         FilesCount=3
+         File \Protheus11\Projetos\COM\Gatilhos\GATNEPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\GATZBDES.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\GtCtaSD1.prw
+             Type=T
+         End
+      End
+      Folder Encapsulamento
+         VSSPath=Encapsulamento
+         FilesCount=1
+         File \Protheus11\Projetos\COM\Encapsulamento\ENCPEDC.prw
+             Type=T
+         End
+      End
+      Folder Rotinas
+         VSSPath=Rotinas
+         FilesCount=6
+         File \Protheus11\Projetos\COM\Rotinas\EPCCOM01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\ImpMedPj.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\GerMedPj.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\AtuCtrPJ.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\PrcPedCom.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\SalCtrPJ.prw
+             Type=T
+         End
+      End
+      Folder Relatorio
+         VSSPath=Nova Pasta7
+         FilesCount=2
+         File \Protheus11\Projetos\COM\PComGrf.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\COM\ComGrf1.prw
+             Type=T
+         End
+      End
+      Folder Pco
+         VSSPath=Nova Pasta8
+         FilesCount=14
+         File \Protheus11\Projetos\PCO\AVALCOT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\MT100GE2.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\MT120ISC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\Mta130C8.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\M460FIM.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\MSD2460.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\Mt103ipc (Mesclado).prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCORH.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCO001.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCO002.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCO003.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\ImpFolha.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCO004.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\PCO005.PRW
+             Type=T
+         End
+      End
+   End
+   Project Faturamento
+      FoldersCount=6
+      Folder Cadastros
+         VSSPath=Cadastros
+         FilesCount=20
+         File \Protheus11\Projetos\FAT\INPUTCTR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CADCONTR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CADCOXFO.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CADSETOR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\INPCOXFO.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CADAORC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\ISSPROD.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VISUORC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VISUALOR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CadCalCon.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CadDiUt.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\InputUt.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CadFunc.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CadHrTo.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\InpHrTot.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CadOrFun.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\CADSZV.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\INPUTEOR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CADPEND.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\Cad002.prw
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=12
+         File \Protheus11\Projetos\FAT\SF2460I.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MSD2520.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MTA410.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MTA410E.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MTA410I.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\PEISS.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\SD1100E.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\SD1100I.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MSD2460.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\M440STTS.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\M410LiOk.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\MT410TOK.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=12
+         File \Protheus11\Projetos\FAT\VALEVEN2.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALCONT2.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALCONT3.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALCONTR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALDTVEN.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALEVEN.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALCONT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ValFunc.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ValSalFu.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ValidDt.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VITEMPV.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALEVEN3.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=14
+         File \Protheus11\Projetos\FAT\FATR901.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFDEPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\FATR900.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\Testasx1.prx
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\RelCOrc.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\RACOMP.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\RELEVENTO.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFFTSA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFTSA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFFEPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFEPCF.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\NFTEPC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\RELCAR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\FAT006R.prw
+             Type=T
+         End
+      End
+      Folder Miscelanea
+         VSSPath=Miscelanea
+         FilesCount=4
+         File \Protheus11\Projetos\FAT\SEQCONT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\MosCoVrm.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\MosCoVer.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALTOTCONTR.prw
+             Type=T
+         End
+      End
+      Folder Processos
+         VSSPath=Processos
+         FilesCount=7
+         File \Protheus11\Projetos\FAT\PrcAprova.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\FATUASZ3.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\DUtilTSA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\EPCFAT01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\EPCFAT02.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\TSAFAT01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\TSAFAT02.prw
+             Type=T
+         End
+      End
+   End
+   Project Financeiro
+      FoldersCount=5
+      Folder Cadastros
+         VSSPath=Cadastros
+         FilesCount=5
+         File \Protheus11\Projetos\FIN\M460VISS.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FA050B01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FINA040.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FINA050.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FA040B01.prw
+             Type=T
+         End
+      End
+      Folder Miscelanea
+         VSSPath=Miscelanea
+         FilesCount=15
+         File \Protheus11\Projetos\FIN\GRAVCTR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\GRAVCTR1.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LPTRF.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FINR.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\Validfin.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd1.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd2.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\CALCRET.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd3.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd4.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd5.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\szn.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\cnab\Checkd6.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\ReproAut.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=4
+         File \Protheus11\Projetos\FIN\FINR140a.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\relfin001.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\UFINR710.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\UNMfinr140.PRX
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=12
+         File \Protheus11\Projetos\FIN\FA070CAN.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\SACI008.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\FA050INC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\FA050ALT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\M020INC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\A020DELE.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\F390FIL.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\F290Fil.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FA050PAR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\F375IRF.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\PonEnt\FA070Imp.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\FINA580A.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=2
+         File \Protheus11\Projetos\FIN\ValidNat.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FIN\VNatAnali.prw
+             Type=T
+         End
+      End
+   End
+   Project Contabilidade
+      FoldersCount=7
+      Folder Lancto Padrao
+         VSSPath=Lancto Padrao
+         FilesCount=24
+         File \Protheus11\Projetos\CTB\LANPADCX.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LANPADDT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LANPADRF.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LPDT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LPDTNFS.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP53008.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP59101.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP59001.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP660.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP51001.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP620ISS.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LPOrigSE2.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP656.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP635.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP510CTA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LPORIGMLT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP597CTA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP591VLR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP660.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP666CTA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP515MLT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP509Orig.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP530.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\LP532.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=5
+         File \Protheus11\Projetos\CTB\VALREVI.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\VALCENTC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\VALORCA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\VALANO.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ValidRev.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=4
+         File \Protheus11\Projetos\CTB\CONR120B.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\SPDR002.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\SPDR003.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\ECTBR400.prw
+             Type=T
+         End
+      End
+      Folder Cadastros
+         VSSPath=Cadastros
+         FilesCount=3
+         File \Protheus11\Projetos\CTB\INPVLORC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\ConvHora.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\Calchora.prw
+             Type=T
+         End
+      End
+      Folder Miscelanea
+         VSSPath=Miscelanea
+         FilesCount=11
+         File \Protheus11\Projetos\MSC\AtuSZI.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ValidHora.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GaVlrMes.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GaMesEntr.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GaHrMes.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\FNA190.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\ContFol.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RatFol.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\GERACONT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\ContF01.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\CTB\ALTPARAM.PRW
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=1
+         File \Protheus11\Projetos\CTB\CT105CHK.PRW
+             Type=T
+         End
+      End
+      Folder Processos
+         VSSPath=Processos
+         FilesCount=1
+         File \Protheus11\Projetos\CTB\IncItmCGC.PRW
+             Type=T
+         End
+      End
+   End
+   Project Folha - GPE
+      FoldersCount=3
+      Folder GPE
+         VSSPath=GPE
+         FilesCount=36
+         File \Protheus11\Projetos\GPE\CADVERBA.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\IMPFUORC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\se2tosrd.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CadSZP.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\MovimVR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RelVAL.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CadSZR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GPEWORD.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GerArqVT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE210.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\Relseg.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GerArqVR.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\EtiqPT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE030.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CadSZT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE340.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CADSZ6.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\ImpFip.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\SEGDES.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE001.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GPL0001.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CADPEND.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\FAT\VALCUST.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CADSZX.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RelRh.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE260.PRX
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\PSaude.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\SaudeTSA.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GSaude.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\AtuaFac.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\CADSZZJ.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\TranResp.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\AjusSRD.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\ContFol.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RATFIP01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\RGPE341.prw
+             Type=T
+         End
+      End
+      Folder importacao
+         VSSPath=importacao
+         FilesCount=1
+         File \Protheus11\Projetos\TMP\IMPSRA.prw
+             Type=T
+         End
+      End
+      Folder Ponto de Entrada
+         VSSPath=Ponto de Entrada
+         FilesCount=3
+         File \Protheus11\Projetos\GPE\GP670CPO.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GP040RES.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\GPE\GP090ALT.PRW
+             Type=T
+         End
+      End
+   End
+   Project Estoque
+      FoldersCount=5
+      Folder Arquivos
+         VSSPath=Arquivos
+         FilesCount=2
+         File \Protheus11\Projetos\EST\CADGRUP.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\EST\SEQGRUPO.PRW
+             Type=T
+         End
+      End
+      Folder Encapsulamento
+         VSSPath=Encapsulamento
+         FilesCount=2
+         File \Protheus11\Projetos\EST\MATAEST01.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\EST\EPCEST02.PRW
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=3
+         File \Protheus11\Projetos\EST\Mt240tok.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\EST\Mt241tok.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\EST\SD3240I.PRW
+             Type=T
+         End
+      End
+      Folder Valids
+         VSSPath=Valids
+         FilesCount=1
+         File \Protheus11\Projetos\EST\VLDD3CC.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=1
+         File \Protheus11\Projetos\EST\RELEST02.prw
+             Type=T
+         End
+      End
+   End
+   Project Miscelanea
+      FoldersCount=2
+      Folder Arquivos
+         VSSPath=Arquivos
+         FilesCount=39
+         File \Protheus11\Projetos\MSC\ACERC5.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERSAL.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\Acersi3.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTAF.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTCT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTF2.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTSQ.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACERTST.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACRTSB1.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ACRTSB1A.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GERADOR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GERFLUXO.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTCC.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTCL.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTCT.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTFO.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTFU.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\IMPORTPL.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\MIGRASET.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\MUDALETR.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\TESTSX1.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\TIPOF3.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\ImpSC6.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\Expszb.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\CADDISCIP.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\DEFAULTX.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GERESTI.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\FX2007.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\FX2006.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GER2006.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\EXEQUERY.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GER2007.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\CFGXFIL.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GER102013.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\GERBCHORA.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\MYPONR100.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PCO\MBSZE.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\MSC\Pona200.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=1
+         File \Protheus11\Projetos\MSC\ValidCC.PRW
+             Type=T
+         End
+      End
+   End
+   Project Ativo Fixo
+      FoldersCount=2
+      Folder Arquivos
+         VSSPath=Arquivos
+         FilesCount=3
+         File \Protheus11\Projetos\atf\LPSN3A.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\atf\AF150AMP.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\atf\SN1PREV.prw
+             Type=T
+         End
+      End
+      Folder Validacao
+         VSSPath=Validacao
+         FilesCount=1
+         File \Protheus11\Projetos\atf\VldChapa.prw
+             Type=T
+         End
+      End
+   End
+   Project PMS
+      FoldersCount=8
+      Folder Cadastros
+         VSSPath=Cadastros
+         FilesCount=10
+         File \Protheus11\Projetos\PMS\IntPms.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\Cad0001.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\fun_ap.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\CADSZU.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\CADSZM.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\UserProj.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\CadCliGED.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMSCADFIN.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMSCADAREA.PRW
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\CadTpDoc.prw
+             Type=T
+         End
+      End
+      Folder Pontos de Entrada
+         VSSPath=Pontos de Entrada
+         FilesCount=12
+         File \Protheus11\Projetos\PMS\MTA120G2.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\MT120LOK.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\MT173GRV.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\MT235G1.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\MT120EXC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\pmsa200imp.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMA001FIM.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMA001VL.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMSREVISA.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\pma203del.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PM410ROT.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMS200A2prw.PRW
+             Type=T
+         End
+      End
+      Folder Processos
+         VSSPath=Processos
+         FilesCount=4
+         File \Protheus11\Projetos\PMS\GerProp.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCM010.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCM040.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PRCPMS01.prw
+             Type=T
+         End
+      End
+      Folder Encapsulamento
+         VSSPath=Encapsulamento
+         FilesCount=7
+         File \Protheus11\Projetos\PMS\EPCPMS01.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS02.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS03.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS04.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS05.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS08.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS09.prw
+             Type=T
+         End
+      End
+      Folder Gatilhos
+         VSSPath=Gatilhos
+         FilesCount=2
+         File \Protheus11\Projetos\PMS\EPCPMS10.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\CodTarCli.prw
+             Type=T
+         End
+      End
+      Folder Miscelanea
+         VSSPath=Miscelanea
+         FilesCount=4
+         File \Protheus11\Projetos\PMS\EPCPMS06.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\EPCPMS07.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\IniPadAFC.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\RetAvBl.prw
+             Type=T
+         End
+      End
+      Folder Validacoes
+         VSSPath=Validacoes
+         FilesCount=3
+         File \Protheus11\Projetos\PMS\VldTarefa.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\VALIDFIN.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\VALIDGED.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=3
+         File \Protheus11\Projetos\PMS\EPCPMSLD.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\PMSLDENG.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\PMS\LDREVDOC.prw
+             Type=T
+         End
+      End
+   End
+   Project Revitalizacao
+      FoldersCount=1
+      Folder Rotinas
+         VSSPath=Rotinas
+         FilesCount=1
+         File \Protheus11\Projetos\Revitalizacao\EPCCTB01.prw
+             Type=T
+         End
+      End
+   End
+   Project Fiscal
+      FoldersCount=1
+      Folder Relatorios
+         VSSPath=Relatorios
+         FilesCount=1
+         File \Protheus11\Projetos\fis\EPCFIS01.PRW
+             Type=T
+         End
+      End
+   End
+   Project Workflow
+      FoldersCount=2
+      Folder Processos
+         VSSPath=Processos
+         FilesCount=1
+         File \Protheus11\Projetos\WFW\STARTSCHED.PRW
+             Type=T
+         End
+      End
+      Folder Miscelania
+         VSSPath=Nova Pasta2
+         FilesCount=1
+         File \Protheus11\Projetos\MSC\ImpSB1.prw
+             Type=T
+         End
+      End
+   End
+   Project NFE
+      FoldersCount=1
+      Folder NFE_3_10
+         VSSPath=Nova Pasta2
+         FilesCount=4
+         File \Protheus11\Projetos\NFE_3_10\danfeii.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\NFE_3_10\danfeiii.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\NFE_3_10\PE01NFESEFAZ.prw
+             Type=T
+         End
+         File \Protheus11\Projetos\NFE_3_10\nfesefaz.prw
+             Type=T
+         End
+      End
+   End
+End
